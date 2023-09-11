@@ -35,7 +35,7 @@ public class allSongs extends AppCompatActivity {
 
         try{
             ArrayList<String> paths = new ArrayList<>(10);
-            ArrayList<String> type = new ArrayList<>(10);
+            ArrayList<String> titles = new ArrayList<>(10);
 
             ArrayList<String[]> r = queryAudio();
             for( String[] s : r )
@@ -44,12 +44,12 @@ public class allSongs extends AppCompatActivity {
                 if( f.exists() )
                 {
                     paths.add( s[2] );
-                    type.add( s[3] );
+                    titles.add( s[0] );
                 }
 
             }
 
-            ArrayAdapter arr = new ArrayAdapter(allSongs.this,R.layout.music_items,R.id.musicItem,paths);
+            ArrayAdapter arr = new ArrayAdapter(allSongs.this,R.layout.music_items,R.id.musicItem,titles);
 
             list.setAdapter(arr);
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
