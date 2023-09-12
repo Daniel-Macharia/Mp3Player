@@ -2,8 +2,10 @@ package com.example.mp3player;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -56,7 +59,7 @@ public class allSongs extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Toast.makeText(allSongs.this, "You clicked " + i, Toast.LENGTH_SHORT).show();
-                    play(paths, i);
+                    play(paths, titles, i);
                 }
             });
         }catch(Exception e)
@@ -75,11 +78,18 @@ public class allSongs extends AppCompatActivity {
         }
     }
 
-    private void play(ArrayList<String> paths, final int index)
+    private void play(ArrayList<String> paths, ArrayList<String> titles, final int index)
     {
         //AudioManager a = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if( player.isPlaying() )
             pause();
+
+        Intent intent = new Intent( allSongs.this, currentSong.class);
+
+        //intent.putExtra("paths", paths);
+        intent.putExtra("title", titles.get(index));
+        //intent.putExtra("index", index);
+        startActivity(intent);
 
         try{
             //requestRunTimeRead();
@@ -97,7 +107,7 @@ public class allSongs extends AppCompatActivity {
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     player = null;
                     player = new MediaPlayer();
-                    play(paths,(index == (paths.size() - 1) ) ? 0 : (index + 1) );
+                    play(paths, titles, (index == (paths.size() - 1) ) ? 0 : (index + 1) );
                 }
             });
 
