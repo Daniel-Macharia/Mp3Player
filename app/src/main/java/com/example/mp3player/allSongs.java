@@ -26,7 +26,19 @@ import java.util.ArrayList;
 public class allSongs extends AppCompatActivity {
 
     ListView list;
-    MediaPlayer player = new MediaPlayer();
+    static ImageView current;
+    public static boolean isPaused = false;
+
+    private static MediaPlayer player = new MediaPlayer();
+    public static String currentSongTitle = "";
+
+    public static int currentSongIndex = 0;
+    private static Context context;
+
+    public static ArrayList<String> paths = new ArrayList<>(10);
+     public static ArrayList<String> titles = new ArrayList<>(10);
+
+    //currentSong s = new currentSong("unknown", this::playOrPauseMethod);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,31 +47,59 @@ public class allSongs extends AppCompatActivity {
         setContentView(R.layout.all_songs);
 
         list = findViewById(R.id.musicList);
+        //current = findViewById( R.id.playing);
+        //current.setImageResource(R.drawable.playing_music);
+
+        context = this;
+
+
 
         try{
-            ArrayList<String> paths = new ArrayList<>(10);
-            ArrayList<String> titles = new ArrayList<>(10);
+            ArrayList<musicItem> items = new ArrayList<>(10);
+            //ArrayList<String> paths = new ArrayList<>(10);
+           // ArrayList<String> titles = new ArrayList<>(10);
 
-            ArrayList<String[]> r = queryAudio();
-            for( String[] s : r )
+            //ArrayList<String[]> r = queryAudio();
+            MainActivity.r = queryAudio();
+            for( String[] s : MainActivity.r )
             {
                 File f = new File(s[2]);
                 if( f.exists() )
                 {
+                    items.add( new musicItem( s[0]));
                     paths.add( s[2] );
                     titles.add( s[0] );
                 }
 
             }
 
-            ArrayAdapter arr = new ArrayAdapter(allSongs.this,R.layout.music_items,R.id.musicItem,titles);
+            //ArrayAdapter arr = new ArrayAdapter(allSongs.this,R.layout.music_items,R.id.musicItem,titles);
 
+            //list.setAdapter(arr);
+            musicItemAdapter arr = new musicItemAdapter(allSongs.this, items);
             list.setAdapter(arr);
+
+
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Toast.makeText(allSongs.this, "You clicked " + i, Toast.LENGTH_SHORT).show();
-                    play(paths, titles, i);
+                    //play(paths, titles, i);
+                    //currentSong c = new currentSong(allSongs.this);
+
+                    current = view.findViewById(R.id.playing);
+                    current.setImageResource(R.drawable.playing_music);
+
+
+                    Intent intent = new Intent( allSongs.this, currentSong.class);
+                    Bundle b = new Bundle();
+                    b.putStringArrayList("paths",paths);
+                    b.putStringArrayList("titles", titles);
+                    b.putInt("index", i);
+                    intent.putExtra("data", b);
+                    startActivity(intent);
+
+                    //play(paths, titles, i);
                 }
             });
         }catch(Exception e)
@@ -69,29 +109,19 @@ public class allSongs extends AppCompatActivity {
 
     }
 
-    private void requestRunTimeRead()
-    {
-        if( ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE )
-                != PackageManager.PERMISSION_GRANTED )
-        {
-            ActivityCompat.requestPermissions(this,new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, 0);
-        }
-    }
-
-    private void play(ArrayList<String> paths, ArrayList<String> titles, final int index)
+    public static void play(ArrayList<String> paths, ArrayList<String> titles, final int index)
     {
         //AudioManager a = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if( player.isPlaying() )
-            pause();
-
-        Intent intent = new Intent( allSongs.this, currentSong.class);
-
-        //intent.putExtra("paths", paths);
-        intent.putExtra("title", titles.get(index));
-        //intent.putExtra("index", index);
-        startActivity(intent);
+            stopCurrentSong();
 
         try{
+            currentSongTitle = titles.get(index);
+            MainActivity.setTitle(currentSongTitle);
+            currentSongIndex = index;
+            currentSong.title.setText(titles.get(index));
+
+            //title.setText(titles.get(index));
             //requestRunTimeRead();
             String songPath = new String(paths.get(index));
             if( player == null )
@@ -105,6 +135,7 @@ public class allSongs extends AppCompatActivity {
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
+
                     player = null;
                     player = new MediaPlayer();
                     play(paths, titles, (index == (paths.size() - 1) ) ? 0 : (index + 1) );
@@ -113,20 +144,33 @@ public class allSongs extends AppCompatActivity {
 
         }catch(Exception e)
         {
-            Toast.makeText(allSongs.this, e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
         }
 
 
     }
 
-    private void pause()
+    private static void stopCurrentSong()
     {
         player.stop();
         player.release();
         player = null;
     }
 
-    private ArrayList<String[]> queryAudio()
+    public static void pause()
+    {
+        player.pause();
+        isPaused = true;
+    }
+
+    public static void resume()
+    {
+        player.start();
+        isPaused = false;
+    }
+
+
+    public  ArrayList<String[]> queryAudio()
     {
         ArrayList<String[]> result = new ArrayList<>(10);
 
@@ -135,7 +179,7 @@ public class allSongs extends AppCompatActivity {
                     != PackageManager.PERMISSION_GRANTED )
             {
                // Toast.makeText(this, "Allow Permission", Toast.LENGTH_SHORT).show();
-                ActivityCompat.requestPermissions( this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},0);
+                ActivityCompat.requestPermissions( allSongs.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},0);
             }else
             {
                // Toast.makeText(this, "Permission to access External Storage granted", Toast.LENGTH_SHORT).show();
