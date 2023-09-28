@@ -18,76 +18,94 @@ public class currentSong  extends AppCompatActivity {
     public static TextView title;
     ImageView nxt;
     ImageView prev;
-    ImageView playPause;
+    public static ImageView playPause;
     //Context context;
     //Runnable methodPlayOrPause;
     @Override
     protected void onCreate( Bundle savesInstanceState)
     {
-        super.onCreate(savesInstanceState);
-        setContentView(R.layout.current_song);
+        try{
 
-        title = findViewById(R.id.name);
-        nxt = findViewById(R.id.next);
-        prev = findViewById(R.id.previous);
-        playPause = findViewById(R.id.playOrPause);
+            super.onCreate(savesInstanceState);
+            setContentView(R.layout.current_song);
 
-        //title.setOnClickListener();
+            title = findViewById(R.id.name);
+            nxt = findViewById(R.id.next);
+            prev = findViewById(R.id.previous);
+            playPause = findViewById(R.id.playOrPause);
 
-        Intent intent = getIntent();
-        Bundle b = intent.getBundleExtra("data");
-        ArrayList<String> paths = b.getStringArrayList("paths");
-        ArrayList<String> titles = b.getStringArrayList("titles");
-        int index = b.getInt("index");
+            //title.setOnClickListener();
 
-        playMusic(paths, titles, index);
+            Intent intent = getIntent();
+            //Bundle b = intent.getBundleExtra("data");
+            int index = intent.getIntExtra("index", 0);
 
-
-        nxt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast.makeText(currentSong.this, "Clicked Next", Toast.LENGTH_SHORT).show();
-                if( !allSongs.isPaused )
-                {
-                    int i = ( allSongs.currentSongIndex + 1 == paths.size() ) ? 0 : ( allSongs.currentSongIndex + 1 );
-                    allSongs.play(paths, titles, i);
-                }
+            if( CubeMusicPlayer.isPaused )
+            {
+                CubeMusicPlayer.player.release();
+                CubeMusicPlayer.player = new MediaPlayer();
+                //allSongs.stopCurrentSong();
+                playMusic(CubeMusicPlayer.paths, CubeMusicPlayer.titles, index);
             }
-        });
-
-        prev.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if( !allSongs.isPaused )
-                {
-                    int i = ( allSongs.currentSongIndex - 1 < 0 ) ? ( paths.size() - 1) : (allSongs.currentSongIndex - 1);
-                    allSongs.play(paths, titles, i);
-                }
+            else
+            {
+                CubeMusicPlayer.player.release();
+                CubeMusicPlayer.player = new MediaPlayer();
+                playMusic(CubeMusicPlayer.paths, CubeMusicPlayer.titles, index);
             }
-        });
 
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if( allSongs.isPaused )
-                {
-                    allSongs.resume();
-                    playPause.setImageResource(R.drawable.pause);
+            nxt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Toast.makeText(currentSong.this, "Clicked Next", Toast.LENGTH_SHORT).show();
+                    if( !CubeMusicPlayer.isPaused )
+                    {
+                        int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.paths.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i);
+                    }
                 }
-                else
-                {
-                    allSongs.pause();
-                    playPause.setImageResource(R.drawable.play);
+            });
+
+            prev.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if( !CubeMusicPlayer.isPaused )
+                    {
+                        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.paths.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
+                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i);
+                    }
                 }
-            }
-        });
+            });
+
+            playPause.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if( CubeMusicPlayer.isPaused )
+                    {
+                        CubeMusicPlayer.resume();
+                        playPause.setImageResource(R.drawable.pause);
+                        MainActivity.playPause.setImageResource(R.drawable.pause);
+                    }
+                    else
+                    {
+                        CubeMusicPlayer.pause();
+                        playPause.setImageResource(R.drawable.play);
+                        MainActivity.playPause.setImageResource(R.drawable.play);
+                    }
+                }
+            });
+
+        }catch( Exception e)
+        {
+            Toast.makeText(this, e.toString() , Toast.LENGTH_SHORT).show();
+        }
 
 
     }
 
     public static void playMusic(ArrayList<String> paths, ArrayList<String> titles, int index)
     {
-        allSongs.play(paths, titles, index);
+        CubeMusicPlayer.play(paths, titles, index);
     }
 
     public void playOrPauseMethod()

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    >
+
+        <LinearLayout
+            android:id="@+id/newList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="10dp"
+            >
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="152dp"
+                android:src="@drawable/add"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:text="Add new Playlist"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="@color/blue"
+                android:background="@color/white"
+                />
+
+        </LinearLayout>
+
+</LinearLayout>

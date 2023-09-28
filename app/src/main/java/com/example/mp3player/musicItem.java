@@ -3,12 +3,14 @@ package com.example.mp3player;
 public class musicItem {
 
     private String name;
+    private String data;
+
     private int imageResource;
 
-    public musicItem(String name)
+    public musicItem(String name,String data)
     {
-        this.name = name;
-        //this.imageResource = imageResource;
+        this.name = new String( name );
+        this.data = new String( data );
     }
 
     public void setImageResource(int imageResource)
@@ -24,6 +26,11 @@ public class musicItem {
     public int getImageResource()
     {
         return imageResource;
+    }
+
+    public String getData()
+    {
+        return data;
     }
 
     public String getName()

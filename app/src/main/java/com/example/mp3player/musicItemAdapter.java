@@ -35,11 +35,22 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
         ImageView img = currentItemView.findViewById(R.id.playing);
         TextView title = currentItemView.findViewById(R.id.musicItem);
 
+        ImageView more = currentItemView.findViewById( R.id.more );
+        more.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                MainActivity.moreMenus( view, new musicItem( music.getName(), music.getData() ) );
+            }
+        });
+
         assert music != null;
 
         img.setImageResource(R.drawable.music_item_icon);
         //img.setImageResource(music.getImageResource());
         title.setText(music.getName());
+
+        CubeMusicPlayer.playingSong.add( currentItemView );
 
         return currentItemView;
     }

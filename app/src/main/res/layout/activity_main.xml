@@ -20,73 +20,87 @@
         android:gravity="center"
         />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
-        android:orientation="horizontal"
         >
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:onClick="loadAllSongs"
+        <TableLayout
+            android:id="@+id/playlists"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             >
 
-            <ImageView
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="4"
-                android:src="@drawable/all_songs"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="All Songs"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:textColor="@color/blue"
-                android:background="@color/white"
-                />
+                android:layout_height="wrap_content"
+                >
 
-        </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/all"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    >
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            >
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="152dp"
+                        android:src="@drawable/all_songs"
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:text="All Songs"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:textColor="@color/blue"
+                        android:background="@color/white"
+                        />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="4"
-                android:src="@drawable/favourites"
-                />
+                </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="Favourites"
-                android:textSize="16sp"
-                android:textColor="@color/blue"
-                android:gravity="center"
-                android:background="@color/white"
-                />
+                <LinearLayout
+                    android:id="@+id/favourites"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    >
 
-        </LinearLayout>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="152dp"
+                        android:src="@drawable/favourites"
+                        />
 
-    </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:text="Favourites"
+                        android:textSize="16sp"
+                        android:textColor="@color/blue"
+                        android:gravity="center"
+                        android:background="@color/white"
+                        />
+
+                </LinearLayout>
+
+            </TableRow>
+
+
+        </TableLayout>
+
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
+        android:layout_weight="2"
         android:orientation="vertical"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
@@ -96,7 +110,7 @@
             android:id="@+id/currentSong"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_weight="1"
             layout="@layout/music_items"
             />
 
