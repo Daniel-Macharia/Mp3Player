@@ -61,7 +61,7 @@ public class currentSong  extends AppCompatActivity {
                     if( !CubeMusicPlayer.isPaused )
                     {
                         int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.paths.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i);
+                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i, false);
                     }
                 }
             });
@@ -72,7 +72,7 @@ public class currentSong  extends AppCompatActivity {
                     if( !CubeMusicPlayer.isPaused )
                     {
                         int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.paths.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
-                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i);
+                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i, false);
                     }
                 }
             });
@@ -105,7 +105,7 @@ public class currentSong  extends AppCompatActivity {
 
     public static void playMusic(ArrayList<String> paths, ArrayList<String> titles, int index)
     {
-        CubeMusicPlayer.play(paths, titles, index);
+        CubeMusicPlayer.play(paths, titles, index, false);
     }
 
     public void playOrPauseMethod()

@@ -28,12 +28,11 @@ public class CubeMusicPlayer {
     public static Context thisContext;
 
 
-    public static void play(ArrayList<String> paths, ArrayList<String> titles, final int index)
+    public static void play(ArrayList<String> paths, ArrayList<String> titles, final int index, boolean startedFromHome)
     {
-        image = playingSong.get(index).findViewById( R.id.playing );
-        image.setImageResource( R.drawable.music_item_icon );
-        image.setImageResource( R.drawable.playing_music );
-        //AudioManager a = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        //image = playingSong.get(index).findViewById( R.id.playing );
+        //image.setImageResource( R.drawable.music_item_icon );
+        //image.setImageResource( R.drawable.playing_music );;
         if( player.isPlaying() )
             stopCurrentSong();
 
@@ -43,7 +42,10 @@ public class CubeMusicPlayer {
             currentSongTitle = titles.get(index);
             MainActivity.setTitle(currentSongTitle);
             currentSongIndex = index;
-            currentSong.title.setText(titles.get(index));
+            if( startedFromHome )
+                MainActivity.title.setText(titles.get( index ));
+            else
+                currentSong.title.setText(titles.get(index));
 
             //title.setText(titles.get(index));
             //requestRunTimeRead();
@@ -63,7 +65,11 @@ public class CubeMusicPlayer {
                     //image.setImageResource( R.drawable.music_item_icon );
                     player = null;
                     player = new MediaPlayer();
-                    play(paths, titles, (index == (paths.size() - 1) ) ? 0 : (index + 1) );
+
+                    if( startedFromHome )
+                        play(paths, titles, (index == (paths.size() - 1) ) ? 0 : (index + 1), true );
+                    else
+                        play(paths, titles, (index == (paths.size() - 1) ) ? 0 : (index + 1), false );
                 }
             });
 
