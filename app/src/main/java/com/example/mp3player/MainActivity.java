@@ -39,15 +39,16 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView nxt;
-    ImageView prev;
-    ImageView more;
+    private ImageView nxt;
+    private ImageView prev;
+    private ImageView more;
     public static ImageView playPause;
     static TextView title;
 
-    TextView name;
-    ImageView img;
-    static Context context;
+    private TextView name;
+    private ImageView img;
+    private ListView playlists;
+    private static Context context;
 
     private ArrayList<String> titles = new ArrayList<>(10);
     private ArrayList<String> paths = new ArrayList<>(10);
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
         requestFileReadAndWritePermission();
 
+        playlists = findViewById( R.id.playlists_list );
+
         nxt = findViewById(R.id.next);
         prev = findViewById(R.id.previous);
         playPause = findViewById(R.id.playOrPause);
@@ -70,6 +73,29 @@ public class MainActivity extends AppCompatActivity {
 
         initCurrent();
 
+        try{
+            ArrayList<String> lists = new ArrayList<>(10);
+            playLists p = new playLists( MainActivity.this );
+            p.open();
+            lists = p.getPlayListNames();
+            p.close();
+
+            //int position;
+
+            for( int i = 0; i < 5; i++) {
+                //position = i + 1;
+                //lists.add( new playlistItems( "leftItem" + position,"rightItem" + position));
+                lists.add("nothing");
+            }
+
+            ArrayAdapter adapter = new ArrayAdapter( MainActivity.this, R.layout.playlist_items, R.id.left_text, lists);
+            //PlaylistItemsAdapter adapter = new PlaylistItemsAdapter( getApplicationContext(), lists );
+            playlists.setAdapter( adapter );
+
+        }catch( Exception e )
+        {
+            Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
         playPause.setImageResource(R.drawable.play);
 
         more.setOnClickListener(new View.OnClickListener() {
@@ -147,19 +173,6 @@ public class MainActivity extends AppCompatActivity {
                {
                    //Toast.makeText(MainActivity.this, "Loading data ", Toast.LENGTH_SHORT).show();
                    startCurrent(0);
-                   /* if( CubeMusicPlayer.isPaused )
-                   {
-                       Toast.makeText(MainActivity.this, "Loading data/resuming player ", Toast.LENGTH_SHORT).show();
-                       CubeMusicPlayer.resume();
-                       playPause.setImageResource(R.drawable.pause);
-                       CubeMusicPlayer.isPaused = false;
-                   }
-                   else {
-                       Toast.makeText(MainActivity.this, "Loading data/pausing player", Toast.LENGTH_SHORT).show();
-                       CubeMusicPlayer.pause();
-                       playPause.setImageResource(R.drawable.play);
-                       CubeMusicPlayer.isPaused = true;
-                   } */
                }
 
             }

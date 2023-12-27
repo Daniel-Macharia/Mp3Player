@@ -20,82 +20,12 @@
         android:gravity="center"
         />
 
-    <ScrollView
+    <ListView
+        android:id="@+id/playlists_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
-        >
-
-        <!-- TableLayout
-            android:id="@+id/playlists"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
-
-                <LinearLayout
-                    android:id="@+id/all"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="10dp"
-                    >
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="152dp"
-                        android:src="@drawable/all_songs"
-                        />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="32dp"
-                        android:text="All Songs"
-                        android:textSize="16sp"
-                        android:gravity="center"
-                        android:textColor="@color/blue"
-                        android:background="@color/white"
-                        />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/favourites"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="10dp"
-                    >
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="152dp"
-                        android:src="@drawable/favourites"
-                        />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="32dp"
-                        android:text="Favourites"
-                        android:textSize="16sp"
-                        android:textColor="@color/blue"
-                        android:gravity="center"
-                        android:background="@color/white"
-                        />
-
-                </LinearLayout>
-
-            </TableRow>
-
-
-        </TableLayout -->
-
-    </ScrollView>
+        />
 
     <LinearLayout
         android:layout_width="match_parent"

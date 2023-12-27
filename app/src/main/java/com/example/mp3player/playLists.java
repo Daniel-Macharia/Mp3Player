@@ -23,7 +23,7 @@ public class playLists {
     private Context thisContext;
 
     private DBHelper myHelper;
-    SQLiteDatabase listDb;
+    private SQLiteDatabase listDb;
 
     private class DBHelper extends SQLiteOpenHelper
     {
@@ -37,6 +37,7 @@ public class playLists {
             db.execSQL(" CREATE TABLE " + tableName +" ( " +
                     listID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                     listName + " TEXT NOT NULL ); " );
+            db.execSQL("INSERT INTO " + tableName + "( " + listName + ") VALUES ( 'allsongs'), ('favourites');");
         }
 
         @Override
@@ -104,6 +105,25 @@ public class playLists {
         {
             result.add( new String[]{ new String( c.getString( idIndex ) ),
                        new String( c.getString( nameIndex ) ) });
+        }
+
+        return result;
+
+    }
+
+    public ArrayList<String> getPlayListNames()
+    {
+        String[] columns = { this.listName };
+
+        Cursor c = listDb.query(tableName, columns, null, null, null, null, null);
+
+        int nameIndex = c.getColumnIndex(listName);
+
+        ArrayList<String> result = new ArrayList<>(6);
+
+        for( c.moveToFirst() ; !c.isAfterLast(); c.moveToNext() )
+        {
+            result.add( new String( c.getString( nameIndex ) ) );
         }
 
         return result;
