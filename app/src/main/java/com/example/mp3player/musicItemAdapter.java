@@ -2,11 +2,14 @@ package com.example.mp3player;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -14,9 +17,13 @@ import java.util.ArrayList;
 
 public class musicItemAdapter extends ArrayAdapter<musicItem> {
 
-    public musicItemAdapter(Context context, ArrayList<musicItem> musicItemList)
+    private String playListName;
+
+    public musicItemAdapter(Context context, ArrayList<musicItem> musicItemList, String playListName)
     {
         super(context, 0, musicItemList);
+
+        this.playListName = playListName;
     }
 
     @NonNull
@@ -40,7 +47,7 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
 
             @Override
             public void onClick(View view) {
-                MainActivity.moreMenus( view, new musicItem( music.getName(), music.getData() ) );
+                moreMenus( view, music, playListName);
             }
         });
 
@@ -55,4 +62,61 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
         return currentItemView;
     }
 
+    private void moreMenus( View view, musicItem m, String listName)
+    {
+        PopupMenu popup = new PopupMenu( view.getContext(), view );
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+
+                int id = menuItem.getItemId();
+
+                if( id == R.id.deleteSong )
+                {
+                    if( listName.equals("allsongs") )
+                    {
+                        //delete from device
+                        deleteSongFromDevice( m );
+                    }
+                    else
+                    {
+                        songsInPlayLists s = new songsInPlayLists( view.getContext() );
+                        s.open();
+                        s.deleteSongFromList( listName, m.getName() );
+                        s.close();
+
+                        Toast.makeText( getContext(), "Playlist name: " + listName +
+                                "\nsongName: " + m.getName(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    return true;
+                }
+                else if( id == R.id.addTo )
+                {
+                    MainActivity.addToAction( view, m);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        popup.inflate( R.menu.more_menus );
+        popup.show();
+
+    }
+
+    private boolean deleteSongFromDevice( musicItem m )
+    {
+
+        try
+        {
+
+        }catch( Exception e )
+        {
+            Toast.makeText( getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+
+        return false;
+    }
 }

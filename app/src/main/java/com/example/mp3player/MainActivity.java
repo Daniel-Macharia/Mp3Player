@@ -1,5 +1,7 @@
 package com.example.mp3player;
 
+import static android.widget.LinearLayout.VERTICAL;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.core.app.ActivityCompat;
@@ -12,7 +14,10 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,6 +26,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +41,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.LineNumberInputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView name;
     private ImageView img;
     private ListView playlists;
+
+    private TableLayout listTable;
     private static Context context;
 
     private ArrayList<String> titles = new ArrayList<>(10);
@@ -63,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
         requestFileReadAndWritePermission();
 
+        Handler handler = new Handler(Looper.getMainLooper() );
+        PlayMusic m = new PlayMusic( handler, this );
+        m.start();
+
+        //listTable = findViewById( R.id.list_table );
+
         playlists = findViewById( R.id.playlists_list );
 
         nxt = findViewById(R.id.next);
@@ -74,34 +89,63 @@ public class MainActivity extends AppCompatActivity {
         initCurrent();
 
         try{
-            ArrayList<String> lists = new ArrayList<>(10);
+            ArrayList<playlistItems> lists = new ArrayList<>(10);
             playLists p = new playLists( MainActivity.this );
             p.open();
-            lists = p.getPlayListNames();
+            lists = p.getPlayListItems();
             p.close();
 
             //int position;
 
-            for( int i = 0; i < 5; i++) {
-                //position = i + 1;
+            //for( int i = 0; i < 5; i++) {
+              //  position = i + 1;
                 //lists.add( new playlistItems( "leftItem" + position,"rightItem" + position));
-                lists.add("nothing");
-            }
+                lists.add( new playlistItems("Add Playlist",0) );
+            //}
 
-            ArrayAdapter adapter = new ArrayAdapter( MainActivity.this, R.layout.playlist_items, R.id.left_text, lists);
-            //PlaylistItemsAdapter adapter = new PlaylistItemsAdapter( getApplicationContext(), lists );
+           /* playlists.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    TextView nameTv = view.findViewById( R.id.name );
+
+                    String nameStr = nameTv.getText().toString();
+
+                    if( !nameStr.equals("allsongs") && !nameStr.equals("Favourites") )
+                    {
+                        view.setBackgroundColor( Color.GREEN );
+                    }
+                    else
+                    {
+                        Toast.makeText(context, "Favourites and allsongs cannot be selected", Toast.LENGTH_SHORT).show();
+                    }
+
+                    Toast.makeText(MainActivity.this, "Long click", Toast.LENGTH_SHORT).show();
+
+                    return true;
+                }
+            }); */
+
+            PlaylistItemsAdapter adapter = new PlaylistItemsAdapter( MainActivity.this, lists);
             playlists.setAdapter( adapter );
 
-        }catch( Exception e )
+            //setTable( MainActivity.this, lists );
+
+        }catch(Exception e)
         {
             Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
         }
+
         playPause.setImageResource(R.drawable.play);
 
         more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                moreMenus(view, new musicItem("Current Song", "no data"));
+                try {
+                    moreMenus(view, new musicItem(CubeMusicPlayer.titles.get( CubeMusicPlayer.currentSongIndex ), CubeMusicPlayer.paths.get( CubeMusicPlayer.currentSongIndex ) ) );
+                }catch( Exception e )
+                {
+                    Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -178,6 +222,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    
+
+    private void setTable( Context context, ArrayList< String[] > list )
+    {
+        try {
+
+            LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+
+            for( int i = 0, j = 1; i < list.size() && j < list.size(); i += 2, j += 2 )
+            {
+                View view1 = layoutInflater.inflate( R.layout.playlists, null);
+                //View view2 = layoutInflater.inflate( R.layout.playlists, null);
+                TableRow tr = new TableRow( context );
+                tr.addView( view1 );
+                //tr.addView( view2 );
+
+                TextView name1 = view1.findViewById( R.id.name );
+                //TextView name2 = view2.findViewById( R.id.text );
+
+                name1.setText( list.get( i )[1] );
+               // name2.setText( list.get( j )[2] );
+
+                listTable.addView( tr );
+            }
+        }catch( Exception e )
+        {
+            Toast.makeText(context, "Error from app: " + e, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public static void moreMenus(View view , musicItem m)
     {
@@ -194,53 +267,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(view.getContext(), "Delete clicked", Toast.LENGTH_SHORT).show();
                 } else if ( id == R.id.addTo ) {
 
-                    try
-                    {
-                        playLists p = new playLists(view.getContext());
-                        p.open();
-                        ArrayList<String[]> lists = p.getPlayLists();
-                        p.close();
-
-                        PopupMenu subPopUp = new PopupMenu(view.getContext(), view);
-                        for( String list[] : lists )
-                        {
-                            subPopUp.getMenu().add(list[1]);
-                        }
-                        //popup.dismiss();
-                        subPopUp.show();
-                        subPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem menuItem) {
-                                String title = menuItem.getTitle().toString();
-
-                                songsInPlayLists s = new songsInPlayLists(view.getContext());
-                                s.open();
-
-                                ArrayList<String[]> r = s.getSongsInList(title);
-                                //check if song exists in the playlist
-                                String data = new String( m.getData() );
-
-                                for( String[] song : r )
-                                {
-                                    if( data.equals( song[1] ) )
-                                    {
-                                        Toast.makeText(view.getContext(), "Song Already in " + title, Toast.LENGTH_SHORT).show();
-                                        s.close();
-                                        return false;
-                                    }
-                                }
-
-                                s.addSong( title, m.getName(), m.getData());
-                                s.close();
-
-                                return false;
-                            }
-                        });
-
-                    }catch( Exception e)
-                    {
-                        Toast.makeText(view.getContext() , e.toString(), Toast.LENGTH_SHORT).show();
-                    }
+                    addToAction( view, m);
 
                 }
 
@@ -251,6 +278,59 @@ public class MainActivity extends AppCompatActivity {
 
         popup.inflate( R.menu.more_menus);
         popup.show();
+    }
+
+    public static void addToAction(View view, musicItem m)
+    {
+        try
+        {
+            playLists p = new playLists(view.getContext());
+            p.open();
+            ArrayList<String[]> lists = p.getPlayLists();
+            p.close();
+
+            PopupMenu subPopUp = new PopupMenu(view.getContext(), view);
+            for( String list[] : lists )
+            {
+                if( list[1].equals("allsongs") )
+                    continue;
+                subPopUp.getMenu().add(list[1]);
+            }
+            //popup.dismiss();
+            subPopUp.show();
+            subPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    String title = menuItem.getTitle().toString();
+
+                    songsInPlayLists s = new songsInPlayLists(view.getContext());
+                    s.open();
+
+                    ArrayList<String[]> r = s.getSongsInList(title);
+                    //check if song exists in the playlist
+                    String data = new String( m.getData() );
+
+                    for( String[] song : r )
+                    {
+                        if( data.equals( song[1] ) )
+                        {
+                            Toast.makeText(view.getContext(), "Song Already in " + title, Toast.LENGTH_SHORT).show();
+                            s.close();
+                            return false;
+                        }
+                    }
+
+                    s.addSong( title, m.getName(), m.getData());
+                    s.close();
+
+                    return false;
+                }
+            });
+
+        }catch( Exception e)
+        {
+            Toast.makeText(view.getContext() , e.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -282,12 +362,6 @@ public class MainActivity extends AppCompatActivity {
     public void loadAllSongs(View view)
     {
         Intent intent = new Intent(MainActivity.this, allSongs.class);
-        startActivity(intent);
-    }
-
-    public void loadFavourites( View view)
-    {
-        Intent intent = new Intent(MainActivity.this, favourites.class);
         startActivity(intent);
     }
 

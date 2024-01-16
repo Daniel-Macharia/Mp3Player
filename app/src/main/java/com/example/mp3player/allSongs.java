@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 public class allSongs extends AppCompatActivity {
 
+    public static int all_songs_in_device = 0;
     ListView list;
     static ImageView current;
     private static Context context;
@@ -61,7 +62,7 @@ public class allSongs extends AppCompatActivity {
 
             }
 
-            musicItemAdapter arr = new musicItemAdapter(allSongs.this, items);
+            musicItemAdapter arr = new musicItemAdapter(allSongs.this, items, "allsongs");
             list.setAdapter(arr);
 
 

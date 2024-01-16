@@ -84,12 +84,19 @@ public class songsInPlayLists {
         cv.put(this.songData, songData);
 
         Toast.makeText(thisContext, "Added to " + playListName, Toast.LENGTH_SHORT).show();
-        return songDb.insert( tableName, null, cv);
+        long l = songDb.insert( tableName, null, cv);
+
+        playLists p = new playLists( thisContext );
+        p.open();
+        p.incrementNumber( playListName );
+        p.close();
+
+        return l;
     }
 
     public ArrayList<String[]> getSongsInList(String ListName)
     {
-        String[] cols = { songName, songData };
+        //String[] cols = { songName, songData };
         //Cursor c = songDb.query( tableName,cols, playList, new String[]{ ListName }, null, null, null);
         String query = " SELECT " + songName + " , " + songData +
                 " FROM " + tableName + " WHERE " + this.playList + " LIKE '%" + ListName + "%' ; ";
@@ -107,5 +114,24 @@ public class songsInPlayLists {
         }
 
         return result;
+    }
+
+    public boolean deleteSongFromList( String listName, String song_name)
+    {
+
+        try
+        {
+            String query = "DELETE FROM " + tableName +
+                    " WHERE " + playList + " LIKE('%" + listName + "%')" + " AND " +
+                    songName + " LIKE('%" + song_name + "%');";
+
+            songDb.execSQL( query );
+
+        }catch( Exception e )
+        {
+            Toast.makeText( thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+
+        return false;
     }
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_rounded_corners"
+    android:backgroundTint="@color/cream"
+    >
+
+    <EditText
+        android:id="@+id/new_list_name"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter Playlist name..."
+        android:textColorHint="@color/grey"
+        android:textColor="@color/purple"
+        android:inputType="text"
+        android:layout_margin="8dp"
+        />
+
+
+</LinearLayout>

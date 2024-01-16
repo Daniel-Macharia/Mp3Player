@@ -159,6 +159,8 @@ public class CubeMusicPlayer {
                         new String( c.getString(mimeTypeIndex)) */ } );
                     //titles.add( c.getString( titleIndex ) );
                     //paths.add( c.getString( dataIndex ) );
+
+                    allSongs.all_songs_in_device++;
                 }
 
             }
@@ -183,6 +185,8 @@ public class CubeMusicPlayer {
                             new String( c2.getString(mimeTypeIndex2)) */ } );
                         //titles.add( c2.getString( titleIndex2 ) );
                         //paths.add( c2.getString( dataIndex2 ) );
+
+                        allSongs.all_songs_in_device++;
                     }
 
                 }

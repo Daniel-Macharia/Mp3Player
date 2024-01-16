@@ -18,6 +18,8 @@ public class playLists {
     private static final String listID = "listID";
     private static final String listName = "listName";
 
+    private static final String numberOfSongs = "numberOfSongs";
+
     private static final int dbVersion = 1;
 
     private Context thisContext;
@@ -36,8 +38,9 @@ public class playLists {
         {
             db.execSQL(" CREATE TABLE " + tableName +" ( " +
                     listID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-                    listName + " TEXT NOT NULL ); " );
-            db.execSQL("INSERT INTO " + tableName + "( " + listName + ") VALUES ( 'allsongs'), ('favourites');");
+                    listName + " TEXT NOT NULL, " +
+                    numberOfSongs + " INTEGER NOT NULL ); " );
+            db.execSQL("INSERT INTO " + tableName + "( " + listName + ", " + numberOfSongs + ") VALUES ( 'allsongs', 0), ('Favourites', 0);");
         }
 
         @Override
@@ -82,6 +85,7 @@ public class playLists {
     {
         ContentValues cv = new ContentValues();
         cv.put(listName, name);
+        cv.put( numberOfSongs, 0);
 
        // Toast.makeText(thisContext, "Adding to database", Toast.LENGTH_SHORT).show();
         long l = listDb.insert( tableName, null, cv );
@@ -111,7 +115,7 @@ public class playLists {
 
     }
 
-    public ArrayList<String> getPlayListNames()
+    public ArrayList<playlistItems> getPlayListItems()
     {
         String[] columns = { this.listName };
 
@@ -119,15 +123,67 @@ public class playLists {
 
         int nameIndex = c.getColumnIndex(listName);
 
-        ArrayList<String> result = new ArrayList<>(6);
+        ArrayList<playlistItems> result = new ArrayList<>(6);
 
         for( c.moveToFirst() ; !c.isAfterLast(); c.moveToNext() )
         {
-            result.add( new String( c.getString( nameIndex ) ) );
+            result.add( new playlistItems( c.getString( nameIndex ), 20 ) );
         }
 
         return result;
 
+    }
+
+    public void incrementNumber( String name )
+    {
+        try
+        {
+            int n = getNumberOfSongsInList( name );
+            n++;
+
+            ContentValues cv = new ContentValues();
+            cv.put(numberOfSongs, n);
+
+            String whereClause = listName + " LIKE('%" + name + "%')";
+
+            listDb.update( tableName, cv, whereClause, null);
+
+            //String updateQuery = "UPDATE " + tableName + " SET " + numberOfSongs + " = " + n +
+              //      " WHERE " + listName + " LIKE('%" + name + "%');";
+
+            //listDb.execSQL( updateQuery );
+        }catch( Exception e )
+        {
+            Toast.makeText( thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+    public int getNumberOfSongsInList( String name )
+    {
+        int n = 0;
+        try
+        {
+            String getQuery = "SELECT " + numberOfSongs + " FROM " + tableName + " WHERE " + listName + " LIKE('%" + name + "%')";
+
+            Cursor c = listDb.rawQuery( getQuery, null );
+
+            int numberIndex = c.getColumnIndex( numberOfSongs );
+
+            if( c.getCount() > 0 )
+            {
+                c.moveToFirst();
+                n = c.getInt( numberIndex );
+            }
+
+            c.close();
+        }catch( Exception e )
+        {
+            Toast.makeText(thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+
+        return n;
     }
 
 }
