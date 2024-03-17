@@ -16,7 +16,7 @@
         android:text="Play Music"
         android:textSize="24sp"
         android:textColor="@color/blue"
-        android:background="@color/cream"
+        android:background="@color/white"
         android:gravity="center"
         />
 
@@ -24,25 +24,11 @@
         android:id="@+id/playlists_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
+        android:layout_weight="6"
+        android:background="@color/cream"
+        android:cacheColorHint="#000000"
+        android:divider="@null"
         />
-    <!-- ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        >
-
-        <TableLayout
-            android:id="@+id/list_table"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="1,2"
-            >
-
-        </TableLayout>
-
-    </ScrollView -->
-
 
     <LinearLayout
         android:layout_width="match_parent"

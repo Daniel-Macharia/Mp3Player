@@ -32,10 +32,6 @@ public class allSongs extends AppCompatActivity {
     private static Context context;
 
     private ArrayList<String[]> songs = new ArrayList<>(10);
-    //private static musicItemAdapter arr;
-
-    //currentSong s = new currentSong("unknown", this::playOrPauseMethod);
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -43,8 +39,8 @@ public class allSongs extends AppCompatActivity {
         setContentView(R.layout.all_songs);
 
         list = findViewById(R.id.musicList);
-        //current = findViewById( R.id.playing);
-        //current.setImageResource(R.drawable.playing_music);
+
+        MainActivity.player.setPlaylist("allsongs");
 
         context = this;
 
@@ -69,35 +65,9 @@ public class allSongs extends AppCompatActivity {
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(allSongs.this, "You clicked " + i, Toast.LENGTH_SHORT).show();
-                    //play(paths, titles, i);
-                    //currentSong c = new currentSong(allSongs.this);
-
-                    //current = view.findViewById(R.id.playing);
-                    //current.setImageResource(R.drawable.playing_music);
-                    //CubeMusicPlayer.isPaused = false;
-
-
-
                     Intent intent = new Intent( allSongs.this, currentSong.class);
-                    //Bundle b = new Bundle();
-                   // b.putStringArrayList("paths", CubeMusicPlayer.paths);
-                    //b.putStringArrayList("titles", CubeMusicPlayer.titles);
-                    //b.putInt("index", i);
-                    //intent.putExtra("data", b);
                     intent.putExtra("index", i);
                     startActivity(intent);
-
-                    CubeMusicPlayer.initPathsAndTitles();
-                    for( String[] song : songs )
-                    {
-
-                        CubeMusicPlayer.titles.add( song[0] );
-                        CubeMusicPlayer.paths.add( song[2] );
-
-                    }
-
-                    //play(paths, titles, i);
                 }
             });
         }catch(Exception e)

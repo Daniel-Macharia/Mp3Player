@@ -117,17 +117,19 @@ public class playLists {
 
     public ArrayList<playlistItems> getPlayListItems()
     {
-        String[] columns = { this.listName };
+        String[] columns = { this.listID, this.listName, this.numberOfSongs };
 
         Cursor c = listDb.query(tableName, columns, null, null, null, null, null);
 
         int nameIndex = c.getColumnIndex(listName);
+        int idIndex = c.getColumnIndex( listID );
+        int numberIndex = c.getColumnIndex( numberOfSongs );
 
         ArrayList<playlistItems> result = new ArrayList<>(6);
 
         for( c.moveToFirst() ; !c.isAfterLast(); c.moveToNext() )
         {
-            result.add( new playlistItems( c.getString( nameIndex ), 20 ) );
+            result.add( new playlistItems( c.getInt(idIndex), c.getString( nameIndex ), c.getInt(numberIndex) ) );
         }
 
         return result;
@@ -184,6 +186,19 @@ public class playLists {
         }
 
         return n;
+    }
+
+    public void deletePlayList(int id )
+    {
+        try
+        {
+            String sql = "DELETE FROM " + tableName + " WHERE " + listID + "=" + id;
+
+            listDb.execSQL(sql);
+        }catch( Exception e )
+        {
+            Toast.makeText(thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

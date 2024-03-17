@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> titles = new ArrayList<>(10);
     private ArrayList<String> paths = new ArrayList<>(10);
+    public static PlayMusicThread player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +71,16 @@ public class MainActivity extends AppCompatActivity {
         CubeMusicPlayer.thisContext = this;//init the players context
         context = this;
 
+        player = new PlayMusicThread( new Handler( Looper.getMainLooper() ), getApplicationContext(), "allsongs");
+
         requestFileReadAndWritePermission();
 
         Handler handler = new Handler(Looper.getMainLooper() );
-        PlayMusic m = new PlayMusic( handler, this );
-        m.start();
 
         //listTable = findViewById( R.id.list_table );
 
         playlists = findViewById( R.id.playlists_list );
+        playlists.setChoiceMode( ListView.CHOICE_MODE_MULTIPLE );
 
         nxt = findViewById(R.id.next);
         prev = findViewById(R.id.previous);
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         title = findViewById(R.id.musicItem);
         more = findViewById(R.id.more);
 
-        initCurrent();
+        initCurrent(handler);
 
         try{
             ArrayList<playlistItems> lists = new ArrayList<>(10);
@@ -95,40 +97,10 @@ public class MainActivity extends AppCompatActivity {
             lists = p.getPlayListItems();
             p.close();
 
-            //int position;
-
-            //for( int i = 0; i < 5; i++) {
-              //  position = i + 1;
-                //lists.add( new playlistItems( "leftItem" + position,"rightItem" + position));
-                lists.add( new playlistItems("Add Playlist",0) );
-            //}
-
-           /* playlists.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    TextView nameTv = view.findViewById( R.id.name );
-
-                    String nameStr = nameTv.getText().toString();
-
-                    if( !nameStr.equals("allsongs") && !nameStr.equals("Favourites") )
-                    {
-                        view.setBackgroundColor( Color.GREEN );
-                    }
-                    else
-                    {
-                        Toast.makeText(context, "Favourites and allsongs cannot be selected", Toast.LENGTH_SHORT).show();
-                    }
-
-                    Toast.makeText(MainActivity.this, "Long click", Toast.LENGTH_SHORT).show();
-
-                    return true;
-                }
-            }); */
+            lists.add( new playlistItems( -1,"Add Playlist",0) );
 
             PlaylistItemsAdapter adapter = new PlaylistItemsAdapter( MainActivity.this, lists);
             playlists.setAdapter( adapter );
-
-            //setTable( MainActivity.this, lists );
 
         }catch(Exception e)
         {
@@ -152,22 +124,15 @@ public class MainActivity extends AppCompatActivity {
         nxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(MainActivity.this, "Clicked Next", Toast.LENGTH_SHORT).show();
-                if( !CubeMusicPlayer.isPaused )
-                {
-                    if( CubeMusicPlayer.player.isPlaying() )
-                    {
-                        int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.paths.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i, true);
-                    }
-                    else {
-                        Toast.makeText(MainActivity.this, "Loading songs", Toast.LENGTH_SHORT).show();
-                        /* if( !allSongs.paths.isEmpty() )
-                        {
-                            allSongs.play(allSongs.paths, allSongs.titles, 0);
-                        } */
-                    }
 
+                try {
+
+                        int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.paths.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+                        player.play( true, index );
+
+                }catch( Exception e )
+                {
+                    Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -175,22 +140,15 @@ public class MainActivity extends AppCompatActivity {
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(MainActivity.this, "Clicked Previous", Toast.LENGTH_SHORT).show();
-                if( !CubeMusicPlayer.isPaused )
+
+                try {
+
+                        int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.paths.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
+                        player.play( true, index );
+
+                }catch ( Exception e )
                 {
-                    if( CubeMusicPlayer.player.isPlaying() )
-                    {
-                        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.paths.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
-                        CubeMusicPlayer.play(CubeMusicPlayer.paths, CubeMusicPlayer.titles, i, true);
-                    }
-                    else
-                    {
-                        Toast.makeText(MainActivity.this, "Loading song data ", Toast.LENGTH_SHORT).show();
-                        /* if( !allSongs.paths.isEmpty() )
-                        {
-                            allSongs.play(allSongs.paths, allSongs.titles, 0);
-                        } */
-                    }
+                    Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -198,60 +156,42 @@ public class MainActivity extends AppCompatActivity {
         playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(MainActivity.this, "Clicked Pause", Toast.LENGTH_SHORT).show();
-               if( CubeMusicPlayer.player.isPlaying() )
-               {
-                   if( CubeMusicPlayer.isPaused )
-                   {
-                       CubeMusicPlayer.resume();
-                       playPause.setImageResource(R.drawable.pause);
-                       CubeMusicPlayer.isPaused = false;
-                   }
-                   else {
-                       CubeMusicPlayer.pause();
-                       playPause.setImageResource(R.drawable.play);
-                       CubeMusicPlayer.isPaused = true;
-                   }
-               }
-               else
-               {
-                   //Toast.makeText(MainActivity.this, "Loading data ", Toast.LENGTH_SHORT).show();
-                   startCurrent(0);
-               }
 
+                try {
+                    if(CubeMusicPlayer.player.isPlaying() )
+                    {
+                        Toast.makeText(MainActivity.this, "is playing", Toast.LENGTH_SHORT).show();
+                        if( CubeMusicPlayer.isPaused )
+                        {
+                            //player.resume();
+                            playPause.setImageResource(R.drawable.pause);
+                        }
+                        else
+                        {
+                            player.pause();
+                            playPause.setImageResource(R.drawable.play);
+                        }
+                    }
+                    else
+                    {
+                        player.startPlaying(true);
+                    }
+
+                }catch( IllegalStateException is)
+                {
+                    if( CubeMusicPlayer.isPaused )
+                    {
+                        player.resume();
+                        playPause.setImageResource(R.drawable.pause);
+                    }
+                }
+                catch( Exception e )
+                {
+                    Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
-    
-
-    private void setTable( Context context, ArrayList< String[] > list )
-    {
-        try {
-
-            LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-
-            for( int i = 0, j = 1; i < list.size() && j < list.size(); i += 2, j += 2 )
-            {
-                View view1 = layoutInflater.inflate( R.layout.playlists, null);
-                //View view2 = layoutInflater.inflate( R.layout.playlists, null);
-                TableRow tr = new TableRow( context );
-                tr.addView( view1 );
-                //tr.addView( view2 );
-
-                TextView name1 = view1.findViewById( R.id.name );
-                //TextView name2 = view2.findViewById( R.id.text );
-
-                name1.setText( list.get( i )[1] );
-               // name2.setText( list.get( j )[2] );
-
-                listTable.addView( tr );
-            }
-        }catch( Exception e )
-        {
-            Toast.makeText(context, "Error from app: " + e, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     public static void moreMenus(View view , musicItem m)
     {
         PopupMenu popup = new PopupMenu(view.getContext(), view);
@@ -271,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                return false;
+                return true;
             }
         });
 
@@ -316,14 +256,14 @@ public class MainActivity extends AppCompatActivity {
                         {
                             Toast.makeText(view.getContext(), "Song Already in " + title, Toast.LENGTH_SHORT).show();
                             s.close();
-                            return false;
+                            return true;
                         }
                     }
 
                     s.addSong( title, m.getName(), m.getData());
                     s.close();
 
-                    return false;
+                    return true;
                 }
             });
 
@@ -370,38 +310,22 @@ public class MainActivity extends AppCompatActivity {
         return context;
     }
 
-    public void initCurrent()
+    public void initCurrent( Handler handler )
     {
-        String []last = new String[3];
-        LastPlayed p = new LastPlayed( MainActivity.this );
-        p.open();
-        last = p.getLastPlayed();
-        p.close();
+        try {
+            String []last = new String[3];
+            LastPlayed p = new LastPlayed( MainActivity.this );
+            p.open();
+            last = p.getLastPlayed();
+            p.close();
 
-        if( last[0] != null )
+            CubeMusicPlayer.queryAudio();
+
+            title.setText( CubeMusicPlayer.titles.get(0) );
+        }catch ( Exception e )
         {
-            Toast.makeText( MainActivity.this, "There's a last played song", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
         }
-
-        Toast.makeText( MainActivity.this, "There's no last played song", Toast.LENGTH_SHORT).show();
-
-        ArrayList<String[]> list = CubeMusicPlayer.queryAudio();
-
-        if( !list.isEmpty() )
-        {
-            last[0] = list.get( 0 )[0];
-            last[1] = list.get( 0 )[1];
-            last[2] = list.get( 0 )[2];
-        }
-
-        for( String []song : list )
-        {
-            CubeMusicPlayer.paths.add( new String( song[2] ) );
-            CubeMusicPlayer.titles.add( new String( song[0] ) );
-        }
-
-        title.setText( last[0] );
     }
 
     private void startCurrent( int index)
@@ -410,12 +334,11 @@ public class MainActivity extends AppCompatActivity {
             //Intent intent = new Intent( MainActivity.this, currentSong.class );
             //intent.putExtra( "index", index );
             //startActivity( intent );
-            CubeMusicPlayer.play( CubeMusicPlayer.paths, CubeMusicPlayer.titles, index, true);
+            //CubeMusicPlayer.play( CubeMusicPlayer.paths, CubeMusicPlayer.titles, index, true);
         }catch( Exception e )
         {
             Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
         }
     }
-
 
 }

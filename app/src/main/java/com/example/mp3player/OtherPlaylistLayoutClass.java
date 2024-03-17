@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
-    private ListView favouritesList;
+    private ListView playlist;
     private TextView title;
 
     @Override
@@ -27,11 +27,13 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
         try{
             title = findViewById( R.id.list_title );
-            favouritesList = findViewById( R.id.favouritesList );
+            playlist = findViewById( R.id.favouritesList );
 
             Intent intent = getIntent();
             String listTitle = intent.getStringExtra("listName");
             title.setText( listTitle );
+
+            MainActivity.player.setPlaylist( listTitle );
 
             songsInPlayLists s = new songsInPlayLists(this);
             s.open();
@@ -52,25 +54,14 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
             musicItemAdapter adapter = new musicItemAdapter(this, m, listTitle);
 
-            favouritesList.setAdapter(adapter);
+            playlist.setAdapter(adapter);
 
-            favouritesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            playlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(OtherPlaylistLayoutClass.this, "You clicked " + i , Toast.LENGTH_SHORT).show();
-
-                     CubeMusicPlayer.isPaused = false;
-
                     Intent intent = new Intent( OtherPlaylistLayoutClass.this, currentSong.class );
                     intent.putExtra("index", i);
                     startActivity( intent );
-
-                    CubeMusicPlayer.initPathsAndTitles();
-                    for( String[] song : songs )
-                    {
-                        CubeMusicPlayer.titles.add( new String( song[0] ) );
-                        CubeMusicPlayer.paths.add( new String( song[1] ) );
-                    }
 
                 }
             });

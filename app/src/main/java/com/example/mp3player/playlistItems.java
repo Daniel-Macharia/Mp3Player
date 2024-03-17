@@ -1,11 +1,14 @@
 package com.example.mp3player;
 
 public class playlistItems {
-    public String listName;
-    public int number;
 
-    public playlistItems( String listName, int number)
+    private int listId;
+    private String listName;
+    private int number;
+
+    public playlistItems( int listId, String listName, int number)
     {
+        this.listId = listId;
         this.listName = new String( listName );
         this.number = number;
     }
@@ -17,5 +20,6 @@ public class playlistItems {
     public String getListName(){ return this.listName; }
 
     public int getNumber(){ return this.number; }
+    public int getListId(){return this.listId;}
 
 }
