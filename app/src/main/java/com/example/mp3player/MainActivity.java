@@ -38,6 +38,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.GridView;
 
 import java.io.File;
 import java.io.LineNumberInputStream;
@@ -54,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView name;
     private ImageView img;
-    private ListView playlists;
+    //private ListView playlists;
+    private GridView playlistGrid;
 
     private TableLayout listTable;
     private static Context context;
@@ -79,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
 
         //listTable = findViewById( R.id.list_table );
 
-        playlists = findViewById( R.id.playlists_list );
-        playlists.setChoiceMode( ListView.CHOICE_MODE_MULTIPLE );
+        playlistGrid = findViewById( R.id.playlists_list );
+        //playlists.setChoiceMode( ListView.CHOICE_MODE_MULTIPLE );
 
         nxt = findViewById(R.id.next);
         prev = findViewById(R.id.previous);
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             lists.add( new playlistItems( -1,"Add Playlist",0) );
 
             PlaylistItemsAdapter adapter = new PlaylistItemsAdapter( MainActivity.this, lists);
-            playlists.setAdapter( adapter );
+            playlistGrid.setAdapter( adapter );
 
         }catch(Exception e)
         {
