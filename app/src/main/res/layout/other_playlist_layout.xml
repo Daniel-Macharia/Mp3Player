@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".OtherPlaylistLayoutClass"
-    android:background="@color/white"
+    android:background="@color/cream"
     android:orientation="vertical"
     >
 
@@ -15,9 +15,9 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:textSize="24sp"
-        android:textColor="@color/blue"
+        android:textColor="@color/purple2"
         android:gravity="center"
-        android:background="@color/grey"
+        android:background="@color/white"
         />
 
     <ListView
@@ -25,6 +25,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="7"
+        android:dividerHeight="2dp"
+        android:divider="@color/cream"
+        android:padding="4dp"
         />
 
 </LinearLayout>

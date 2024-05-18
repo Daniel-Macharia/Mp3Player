@@ -88,7 +88,7 @@ public class songsInPlayLists {
 
         playLists p = new playLists( thisContext );
         p.open();
-        p.incrementNumber( playListName );
+        p.updateNumberOfSongs( playListName, true);
         p.close();
 
         return l;
@@ -126,6 +126,11 @@ public class songsInPlayLists {
                     songName + " LIKE('%" + song_name + "%');";
 
             songDb.execSQL( query );
+
+            playLists p = new playLists( thisContext );
+            p.open();
+            p.updateNumberOfSongs( listName, false);
+            p.close();
 
         }catch( Exception e )
         {

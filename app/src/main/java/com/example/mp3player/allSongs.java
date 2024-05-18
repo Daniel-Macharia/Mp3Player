@@ -47,6 +47,10 @@ public class allSongs extends AppCompatActivity {
         //CubeMusicPlayer.queryAudio();
 
         try{
+            Intent intent = new Intent( this, PlayerService.class);
+            startService(intent);
+            Toast.makeText(context, "After starting service", Toast.LENGTH_SHORT).show();
+
             ArrayList<musicItem> items = new ArrayList<>(10);
 
             songs = CubeMusicPlayer.queryAudio();
@@ -58,8 +62,9 @@ public class allSongs extends AppCompatActivity {
 
             }
 
-            musicItemAdapter arr = new musicItemAdapter(allSongs.this, items, "allsongs");
-            list.setAdapter(arr);
+            //musicItemAdapter arr = new musicItemAdapter(allSongs.this, items, "allsongs");
+            CubeMusicPlayer.adapter = new musicItemAdapter(allSongs.this, items, "allsongs");
+            list.setAdapter( CubeMusicPlayer.adapter );
 
 
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -77,5 +82,11 @@ public class allSongs extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onResume()
+    {
+        CubeMusicPlayer.adapter.notifyDataSetChanged();
+        super.onResume();
+    }
 
 }

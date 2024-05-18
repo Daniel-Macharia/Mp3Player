@@ -41,7 +41,7 @@ public class currentSong  extends AppCompatActivity {
                 public void onClick(View view) {
                     if( !CubeMusicPlayer.isPaused )
                     {
-                        int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.paths.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+                        int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
                         MainActivity.player.play( false, i );
                     }
                 }
@@ -52,7 +52,7 @@ public class currentSong  extends AppCompatActivity {
                 public void onClick(View view) {
                     if( !CubeMusicPlayer.isPaused )
                     {
-                        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.paths.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
+                        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.musicItems.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
                         MainActivity.player.play( false, i );
                     }
                 }

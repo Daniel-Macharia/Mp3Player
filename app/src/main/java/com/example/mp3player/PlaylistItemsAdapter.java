@@ -157,112 +157,6 @@ public class PlaylistItemsAdapter extends BaseAdapter {
                     }
                 });
             }
-            {
-                /*case "Favourites":
-                    image.setImageResource( R.drawable.music_item_icon );
-
-                    String name = current.getListName();
-
-                    int number = 0;
-                    playLists p = new playLists( getContext() );
-                    p.open();
-                    number = p.getNumberOfSongsInList( name );
-                    p.close();
-                    num.setText( number + " songs" );
-                    currentView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent( getContext(), OtherPlaylistLayoutClass.class);
-                            intent.putExtra("listName", name );
-                            getContext().startActivity( intent );
-                        }
-                    });
-                    break;*/
-
-            }
-            /*else
-            {
-                image.setImageResource( R.drawable.music_item_icon );
-
-                String name = current.getListName();
-
-                int number = 0;
-                playLists p = new playLists( getContext() );
-                p.open();
-                number = p.getNumberOfSongsInList( name );
-                p.close();
-
-                if( name.equals("allsongs") )
-                {
-                   // num.setText( allSongs.all_songs_in_device + " songs");
-                    num.setText(number + " songs");
-                }
-                else
-                {
-                    num.setText( number + " songs" );
-                }
-
-                currentView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                        try{
-
-                            if( name.equals("allsongs") )
-                            {
-                                Intent intent = new Intent( getContext(), allSongs.class);
-                                getContext().startActivity( intent );
-                            }
-                            else {
-                                Intent intent = new Intent( getContext(), OtherPlaylistLayoutClass.class);
-                                intent.putExtra("listName", name );
-                                getContext().startActivity( intent );
-                            }
-
-                        }catch ( Exception e )
-                        {
-                            Toast.makeText(context, "Error: " + e, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-            }
-
-
-            String name = current.getListName();
-            View finalCurrentView = currentView;
-            currentView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    TextView nameTv = view.findViewById( R.id.name );
-
-                    String nameStr = nameTv.getText().toString();
-
-
-                    if( name.equals("Add Playlist") )
-                    {
-                        Toast.makeText(context, "add playlist cannot be selected", Toast.LENGTH_SHORT).show();
-                    }
-                    else if( name.equals("allsongs") )
-                    {
-                        Toast.makeText(context, "allsongs cannot be selected", Toast.LENGTH_SHORT).show();
-                    }
-                    else if( name.equals("Favourites") )
-                    {
-                        Toast.makeText(context, "Favourites cannot be selected", Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        ( (ListView)view.getParent()).setChoiceMode( ListView.CHOICE_MODE_MULTIPLE);
-                        finalCurrentView.setBackgroundColor( view.getResources().getColor( R.color.grey ));
-
-                        //return true;
-                    }
-
-                    return true;
-                }
-            });*/
-
 
         }catch( Exception e )
         {
@@ -282,7 +176,6 @@ public class PlaylistItemsAdapter extends BaseAdapter {
 
                 if( id == R.id.deleteList )
                 {
-                    //list.remove( position);
                     playLists p = new playLists(getContext());
                     p.open();
                     p.deletePlayList( listId );

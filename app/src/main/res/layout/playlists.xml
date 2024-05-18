@@ -19,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="5"
-            android:src="@drawable/music_icon"
+            android:src="@drawable/playing_music"
             android:padding="8dp"
             />
         <ImageView

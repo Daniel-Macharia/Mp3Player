@@ -15,7 +15,7 @@
         android:layout_weight="1"
         android:text="Play Music"
         android:textSize="24sp"
-        android:textColor="@color/blue"
+        android:textColor="@color/purple2"
         android:background="@color/white"
         android:gravity="center"
         />
@@ -30,6 +30,7 @@
         android:verticalSpacing="4dp"
         android:horizontalSpacing="4dp"
         android:gravity="center"
+        android:padding="4dp"
         />
 
     <LinearLayout

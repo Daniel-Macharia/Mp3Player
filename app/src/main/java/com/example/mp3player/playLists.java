@@ -136,12 +136,16 @@ public class playLists {
 
     }
 
-    public void incrementNumber( String name )
+    public void updateNumberOfSongs( String name, boolean increment )
     {
         try
         {
             int n = getNumberOfSongsInList( name );
-            n++;
+
+            if( increment )
+                n++;
+            else
+                n--;
 
             ContentValues cv = new ContentValues();
             cv.put(numberOfSongs, n);

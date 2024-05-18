@@ -60,10 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TableLayout listTable;
     private static Context context;
-
-    private ArrayList<String> titles = new ArrayList<>(10);
-    private ArrayList<String> paths = new ArrayList<>(10);
     public static PlayMusicThread player;
+
+    private PlaylistItemsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
             lists.add( new playlistItems( -1,"Add Playlist",0) );
 
-            PlaylistItemsAdapter adapter = new PlaylistItemsAdapter( MainActivity.this, lists);
+            adapter = new PlaylistItemsAdapter( MainActivity.this, lists);
             playlistGrid.setAdapter( adapter );
 
         }catch(Exception e)
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    moreMenus(view, new musicItem(CubeMusicPlayer.titles.get( CubeMusicPlayer.currentSongIndex ), CubeMusicPlayer.paths.get( CubeMusicPlayer.currentSongIndex ) ) );
+                    moreMenus(view, new musicItem(CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex )) );
                 }catch( Exception e )
                 {
                     Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                        int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.paths.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+                        int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
                         player.play( true, index );
 
                 }catch( Exception e )
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                        int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.paths.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
+                        int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.musicItems.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
                         player.play( true, index );
 
                 }catch ( Exception e )
@@ -323,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
 
             CubeMusicPlayer.queryAudio();
 
-            title.setText( CubeMusicPlayer.titles.get(0) );
+            title.setText( CubeMusicPlayer.musicItems.get(0).getName() );
         }catch ( Exception e )
         {
             Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
@@ -341,6 +340,14 @@ public class MainActivity extends AppCompatActivity {
         {
             Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    @Override
+    public void onResume()
+    {
+        adapter.notifyDataSetChanged();
+        super.onResume();
     }
 
 }

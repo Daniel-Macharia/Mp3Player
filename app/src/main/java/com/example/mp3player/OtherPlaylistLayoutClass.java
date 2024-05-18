@@ -52,9 +52,9 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
             }
 
-            musicItemAdapter adapter = new musicItemAdapter(this, m, listTitle);
-
-            playlist.setAdapter(adapter);
+            //musicItemAdapter adapter = new musicItemAdapter(this, m, listTitle);
+            CubeMusicPlayer.adapter = new musicItemAdapter(this, m, listTitle);
+            playlist.setAdapter(CubeMusicPlayer.adapter);
 
             playlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -71,5 +71,12 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    @Override
+    public void onResume()
+    {
+        CubeMusicPlayer.adapter.notifyDataSetChanged();
+        super.onResume();
     }
 }
