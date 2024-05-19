@@ -9,10 +9,12 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -126,15 +128,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                try {
-
-                        int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-                        player.play( true, index );
-
-                }catch( Exception e )
-                {
-                    Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
-                }
+                handleNextAction( getApplicationContext() );
             }
         });
 
@@ -142,15 +136,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                try {
-
-                        int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.musicItems.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
-                        player.play( true, index );
-
-                }catch ( Exception e )
-                {
-                    Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
-                }
+                handlePrevAction( getApplicationContext() );
             }
         });
 
@@ -158,38 +144,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                try {
-                    if(CubeMusicPlayer.player.isPlaying() )
-                    {
-                        Toast.makeText(MainActivity.this, "is playing", Toast.LENGTH_SHORT).show();
-                        if( CubeMusicPlayer.isPaused )
-                        {
-                            //player.resume();
-                            playPause.setImageResource(R.drawable.pause);
-                        }
-                        else
-                        {
-                            player.pause();
-                            playPause.setImageResource(R.drawable.play);
-                        }
-                    }
-                    else
-                    {
-                        player.startPlaying(true);
-                    }
-
-                }catch( IllegalStateException is)
-                {
-                    if( CubeMusicPlayer.isPaused )
-                    {
-                        player.resume();
-                        playPause.setImageResource(R.drawable.pause);
-                    }
-                }
-                catch( Exception e )
-                {
-                    Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
-                }
+                handlePlayAction( getApplicationContext() );
             }
         });
     }
@@ -348,6 +303,69 @@ public class MainActivity extends AppCompatActivity {
     {
         adapter.notifyDataSetChanged();
         super.onResume();
+    }
+
+    public static void handlePrevAction( Context context )
+    {
+        try {
+
+            int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.musicItems.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
+            player.play( true, index );
+
+        }catch ( Exception e )
+        {
+            Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void handleNextAction( Context context )
+    {
+        try {
+
+            int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+            player.play( true, index );
+
+        }catch( Exception e )
+        {
+            Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    public static void handlePlayAction(Context context)
+    {
+        try {
+            if(CubeMusicPlayer.player.isPlaying() )
+            {
+                Toast.makeText(context, "is playing", Toast.LENGTH_SHORT).show();
+                if( CubeMusicPlayer.isPaused )
+                {
+                    //player.resume();
+                    playPause.setImageResource(R.drawable.pause);
+                }
+                else
+                {
+                    player.pause();
+                    playPause.setImageResource(R.drawable.play);
+                }
+            }
+            else
+            {
+                player.startPlaying(true);
+            }
+
+        }catch( IllegalStateException is)
+        {
+            if( CubeMusicPlayer.isPaused )
+            {
+                player.resume();
+                playPause.setImageResource(R.drawable.pause);
+            }
+        }
+        catch( Exception e )
+        {
+            Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

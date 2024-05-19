@@ -3,6 +3,7 @@ package com.example.mp3player;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,6 +34,15 @@ public class currentSong  extends AppCompatActivity {
 
             Intent intent = getIntent();
             int index = intent.getIntExtra("index", 0);
+
+            Intent playerServiceIntent = new Intent( this, PlayerService.class);
+            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O )
+            {
+                startForegroundService(playerServiceIntent);
+            }
+            else {
+                startService(playerServiceIntent);
+            }
 
             MainActivity.player.play( false, index);
 

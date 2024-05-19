@@ -308,6 +308,7 @@ class PlayMusicThread implements Runnable
 
     private Context context;
     private String listname;
+    public static boolean isPlaying = true;
     private int index;
     private boolean startedFromHome;
 
