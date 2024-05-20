@@ -35,15 +35,6 @@ public class currentSong  extends AppCompatActivity {
             Intent intent = getIntent();
             int index = intent.getIntExtra("index", 0);
 
-            Intent playerServiceIntent = new Intent( this, PlayerService.class);
-            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O )
-            {
-                startForegroundService(playerServiceIntent);
-            }
-            else {
-                startService(playerServiceIntent);
-            }
-
             MainActivity.player.play( false, index);
 
             nxt.setOnClickListener(new View.OnClickListener() {

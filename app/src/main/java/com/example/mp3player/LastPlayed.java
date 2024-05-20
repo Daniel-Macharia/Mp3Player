@@ -92,9 +92,14 @@ public class LastPlayed
         int titleIndex = c.getColumnIndex( lastSongTitle );
         int pathIndex = c.getColumnIndex( lastSongPath );
 
-        result[0] = c.getString( listIndex );
-        result[1] = c.getString( titleIndex );
-        result[2] = c.getString( pathIndex );
+        if( c.moveToFirst() )
+        {
+            result[0] = c.getString( listIndex );
+            result[1] = c.getString( titleIndex );
+            result[2] = c.getString( pathIndex );
+        }
+
+        c.close();
 
         return result;
     }

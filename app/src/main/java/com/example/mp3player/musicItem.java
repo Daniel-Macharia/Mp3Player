@@ -4,14 +4,18 @@ public class musicItem {
 
     private String name;
     private String data;
+    private String artist;
+    private String duration;
 
     private int imageResource;
     private boolean isPlaying;
 
-    public musicItem(String name,String data)
+    public musicItem(String name,String data, String duration, String artist)
     {
         this.name = new String( name );
         this.data = new String( data );
+        this.duration = new String( duration );
+        this.artist = new String( artist );
         this.isPlaying = false;
     }
 
@@ -19,6 +23,8 @@ public class musicItem {
     {
         this.name = new String( item.getName() );
         this.data = new String( item.getData() );
+        this.artist = new String( item.getArtist() );
+        this.duration = new String( item.getDuration() );
         this.isPlaying = item.getIsPlaying();
     }
     public void setIsPlaying( boolean isPlaying )
@@ -53,4 +59,6 @@ public class musicItem {
     {
         return name;
     }
+    public String getArtist(){return this.artist;}
+    public String getDuration(){return this.duration;}
 }

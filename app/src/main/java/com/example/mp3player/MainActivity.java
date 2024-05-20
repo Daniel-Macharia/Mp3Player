@@ -7,6 +7,7 @@ import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +48,7 @@ import java.io.File;
 import java.io.LineNumberInputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -216,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    s.addSong( title, m.getName(), m.getData());
+                    s.addSong( title, m.getName(), m.getData(), m.getDuration(), m.getArtist());
                     s.close();
 
                     return true;
@@ -269,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     public void initCurrent( Handler handler )
     {
         try {
-            String []last = new String[3];
+            String []last = new String[4];
             LastPlayed p = new LastPlayed( MainActivity.this );
             p.open();
             last = p.getLastPlayed();
@@ -335,9 +338,10 @@ public class MainActivity extends AppCompatActivity {
     public static void handlePlayAction(Context context)
     {
         try {
+
             if(CubeMusicPlayer.player.isPlaying() )
             {
-                Toast.makeText(context, "is playing", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "is playing", Toast.LENGTH_SHORT).show();
                 if( CubeMusicPlayer.isPaused )
                 {
                     //player.resume();

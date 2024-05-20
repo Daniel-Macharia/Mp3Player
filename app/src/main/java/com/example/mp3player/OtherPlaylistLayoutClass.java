@@ -47,7 +47,7 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
                 if( f.exists() )
                 {
-                    m.add( new musicItem( song[0], song[1] ) );
+                    m.add( new musicItem( song[0], song[1], song[2], song[3] ) );
                 }
 
             }

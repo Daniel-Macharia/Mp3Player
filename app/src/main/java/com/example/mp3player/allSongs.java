@@ -47,7 +47,6 @@ public class allSongs extends AppCompatActivity {
         //CubeMusicPlayer.queryAudio();
 
         try{
-
             ArrayList<musicItem> items = new ArrayList<>(10);
 
             songs = CubeMusicPlayer.queryAudio();
@@ -55,7 +54,7 @@ public class allSongs extends AppCompatActivity {
              for( String[] song : songs )
             {
 
-                    items.add( new musicItem( song[0], song[2] ) );
+                    items.add( new musicItem( song[0], song[2], song[1],song[3] ) );
 
             }
 
