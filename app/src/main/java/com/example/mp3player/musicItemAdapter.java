@@ -1,6 +1,16 @@
 package com.example.mp3player;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,8 +23,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.app.ActivityCompat;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class musicItemAdapter extends ArrayAdapter<musicItem> {
 
@@ -58,7 +71,7 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
 
         if( music.getIsPlaying() )
         {
-            img.setImageDrawable( AppCompatResources.getDrawable( getContext(), R.drawable.playing_music ) );
+            img.setImageResource( R.drawable.playing_music );
         }
         else
         {
@@ -114,34 +127,32 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
     {
         try
         {
+            setNonePlaying();
             View currentItemView = getView(position, null, null);
 
 
             ImageView img = currentItemView.findViewById(R.id.playing);
             img.setImageResource( R.drawable.playing_music );
 
-            Toast.makeText(getContext(), "Setting current item", Toast.LENGTH_SHORT).show();
+            musicItems.get( position ).setIsPlaying(true);
+
+           // Toast.makeText(getContext(), "Setting current item", Toast.LENGTH_SHORT).show();
 
         }catch( Exception e )
         {
             Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
         }
     }
-    public void unsetPlayingSong( int position )
+
+    private void setNonePlaying()
     {
-        try
-        {
-            View currentItemView = getView(position, null, null);
-
-
-            ImageView img = currentItemView.findViewById(R.id.playing);
-            img.setImageResource( R.drawable.music_item_icon );
-            Toast.makeText(getContext(), "Unsetting current item", Toast.LENGTH_SHORT).show();
-
-        }catch( Exception e )
-        {
-            Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for( musicItem item : musicItems )
+                    item.setIsPlaying(false);
+            }
+        }).start();
     }
 
     private void deleteSongFromList( String listName, musicItem item, int position)
@@ -166,7 +177,57 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
 
         try
         {
-            CubeMusicPlayer.deleteSong( m.getData() );
+            //CubeMusicPlayer.deleteSong( m.getData() );
+
+            if(ActivityCompat.checkSelfPermission( getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE ) != PackageManager.PERMISSION_GRANTED )
+            {
+                ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                //Toast.makeText(getContext(), "Requesting delete permission", Toast.LENGTH_SHORT).show();
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            {
+                Collection<Uri> col = new ArrayList<Uri>();
+
+                col.add( Uri.parse( m.getData() ) );
+                PendingIntent intent = MediaStore.createDeleteRequest( getContext().getContentResolver(), col);
+                getContext().startIntentSender( intent.getIntentSender(), null, 0, 0, 0);
+                Toast.makeText(getContext(), "File deleted!", Toast.LENGTH_SHORT).show();
+
+                musicItems.remove( m );
+                notifyDataSetChanged();
+            }
+            else
+            {
+                File file = new File( m.getData() );
+                if( file.exists() )
+                {
+
+                    if( getContext().getContentResolver().delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            MediaStore.MediaColumns.DATA + " = ? ", new String[]{m.getData()} ) == 1 )
+                    {
+                        Toast.makeText(getContext(), "Deleted media.", Toast.LENGTH_SHORT).show();
+                        if( file.delete() )
+                        {
+                            Toast.makeText(getContext(), "File deleted!", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            //Toast.makeText(getContext(), "Could not delete physical file!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "Could not delete file!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    musicItems.remove( m );
+                    notifyDataSetChanged();
+                }
+            }
+
+            allSongs.all_songs_in_device--;
+
         }catch( Exception e )
         {
             Toast.makeText( getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();

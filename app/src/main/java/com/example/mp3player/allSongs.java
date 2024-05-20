@@ -31,7 +31,7 @@ public class allSongs extends AppCompatActivity {
     static ImageView current;
     private static Context context;
 
-    private ArrayList<String[]> songs = new ArrayList<>(10);
+    private ArrayList<musicItem> songs = new ArrayList<>(10);
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -47,15 +47,14 @@ public class allSongs extends AppCompatActivity {
         //CubeMusicPlayer.queryAudio();
 
         try{
-
             ArrayList<musicItem> items = new ArrayList<>(10);
 
             songs = CubeMusicPlayer.queryAudio();
 
-             for( String[] song : songs )
+             for( musicItem song : songs )
             {
 
-                    items.add( new musicItem( song[0], song[2] ) );
+                    items.add( new musicItem( song ) );
 
             }
 
@@ -70,6 +69,7 @@ public class allSongs extends AppCompatActivity {
                     Intent intent = new Intent( allSongs.this, currentSong.class);
                     intent.putExtra("index", i);
                     startActivity(intent);
+                    //CubeMusicPlayer.currentPlayList = new String("allsongs");
                 }
             });
         }catch(Exception e)

@@ -62,6 +62,8 @@ public class PlayerService extends Service {
     public void onDestroy()
     {
         toast("Destroying service");
+        MainActivity.saveLastPlayedSongDetails( getApplicationContext() );
+        super.onDestroy();
     }
     @Override
     public IBinder onBind(Intent intent)
@@ -74,10 +76,32 @@ public class PlayerService extends Service {
     {
         try
         {
-            sendNotification();
+
             String action = intent.getStringExtra("com.example.mp3player.action");
 
-            if( action != null )
+            if( action == null )//not triggered by notification action
+            {
+                String songName = intent.getStringExtra("songTitle");
+                String artistName = intent.getStringExtra("artistName");
+
+                if( songName == null )
+                {
+                    songName = "untitled";
+                }
+
+                if( artistName == null )
+                {
+                    artistName = "unknown";
+                }
+
+                sendNotification(songName, artistName);
+
+                //if( Build.VERSION.SDK_INT < Build.VERSION_CODES.O )
+                {
+                    startForeground(444, getNotification( songName, artistName));
+                }
+            }
+            else //triggered by notification action
             {
                 if( action.equals("next") )
                 {
@@ -94,10 +118,8 @@ public class PlayerService extends Service {
                     MainActivity.handlePrevAction( getApplicationContext() );
                 }
             }
-            //if( Build.VERSION.SDK_INT < Build.VERSION_CODES.O )
-            {
-                startForeground(444, getNotification());
-            }
+
+
         }catch (Exception e)
         {
             toast( "Error: " + e );
@@ -113,7 +135,7 @@ public class PlayerService extends Service {
         return super.onUnbind(intent);
     }
 
-    private void sendNotification()
+    private void sendNotification(String songName, String artistName)
     {
         try{
             //toast("sending notification");
@@ -125,11 +147,13 @@ public class PlayerService extends Service {
             NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE );
 
 
-            int PREV = 1, PLAY = 2, NEXT = 3, CANCEL = 4;
+            int PREV = 1, PLAY = 2, NEXT = 3, CANCEL = 4, MAIN = 5;
             Intent prevIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action", "previous");
             Intent nextIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","next");
             Intent playIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","play");
             Intent cancelIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","cancel");
+
+            Intent mainActivityIntent = new Intent( getApplicationContext(), MainActivity.class );
 
             if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O )
             {
@@ -142,6 +166,8 @@ public class PlayerService extends Service {
             PendingIntent playPendingIntent = PendingIntent.getService( getApplicationContext(), PLAY, playIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             PendingIntent nextPendingIntent = PendingIntent.getService( getApplicationContext(), NEXT, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             PendingIntent cancelPendingIntent = PendingIntent.getService( getApplicationContext(), CANCEL, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            PendingIntent mainActivityPendingIntent = PendingIntent.getActivity( getApplicationContext(), MAIN, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             if(ActivityCompat.checkSelfPermission( getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS ) != PackageManager.PERMISSION_GRANTED )
             {
@@ -158,8 +184,10 @@ public class PlayerService extends Service {
                     .addAction( R.drawable.next, "next", nextPendingIntent )
                     .addAction( R.drawable.cancel, "Cancel", cancelPendingIntent )
                     .setColor(getResources().getColor(R.color.cream, null) )
-                    .setContentTitle("Music Player")
-                    .setContentText("Current music");
+                    .setContentTitle( new String( songName ) )
+                    .setContentText( new String( artistName ) )
+                    .setSilent(true)
+                    .setContentIntent( mainActivityPendingIntent );
 
             n = builder.build();
 
@@ -171,7 +199,7 @@ public class PlayerService extends Service {
         }
     }
 
-    private Notification getNotification()
+    private Notification getNotification(String songName, String artistName)
     {
         String channelId = "444";
         String channelName = "cube_music_player";
@@ -183,16 +211,20 @@ public class PlayerService extends Service {
             mgr.createNotificationChannel( channel );
         }
 
-        int PREV = 1, PLAY = 2, NEXT = 3, CANCEL = 4;
+        int PREV = 1, PLAY = 2, NEXT = 3, CANCEL = 4, MAIN = 5;
         Intent prevIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","previous");
         Intent nextIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","next");
         Intent playIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","play");
         Intent cancelIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","cancel");
 
+        Intent mainActivityIntent = new Intent( getApplicationContext(), MainActivity.class );
+
         PendingIntent prevPendingIntent = PendingIntent.getService( getApplicationContext(), PREV, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         PendingIntent playPendingIntent = PendingIntent.getService( getApplicationContext(), PLAY, playIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         PendingIntent nextPendingIntent = PendingIntent.getService( getApplicationContext(), NEXT, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         PendingIntent cancelPendingIntent = PendingIntent.getService( getApplicationContext(), CANCEL, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        PendingIntent mainActivityPendingIntent = PendingIntent.getActivity( getApplicationContext(), MAIN, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         return  new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -202,8 +234,10 @@ public class PlayerService extends Service {
                 .addAction( R.drawable.next, "next", nextPendingIntent )
                 .addAction( R.drawable.cancel, "Cancel", cancelPendingIntent )
                 .setColor(getResources().getColor(R.color.cream, null) )
-                .setContentTitle("Music Player")
-                .setContentText("Current music").build();
+                .setContentTitle( new String( songName ) )
+                .setContentText( new String( artistName ) )
+                .setSilent(true)
+                .setContentIntent( mainActivityPendingIntent ).build();
     }
 
     private void toast( String message )

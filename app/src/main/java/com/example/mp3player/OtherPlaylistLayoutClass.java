@@ -37,17 +37,17 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
             songsInPlayLists s = new songsInPlayLists(this);
             s.open();
-            ArrayList<String[]> songs = s.getSongsInList(listTitle);
+            ArrayList<musicItem> songs = s.getSongsInList(listTitle);
             s.close();
 
             ArrayList<musicItem> m = new ArrayList<>(6);
-            for( String[] song : songs )
+            for( musicItem song : songs )
             {
-                File f = new File( song[1] );
+                File f = new File( song.getData() );
 
                 if( f.exists() )
                 {
-                    m.add( new musicItem( song[0], song[1] ) );
+                    m.add( new musicItem( song.getName(), song.getData(), song.getDuration(), song.getArtist() ) );
                 }
 
             }
@@ -62,6 +62,8 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
                     Intent intent = new Intent( OtherPlaylistLayoutClass.this, currentSong.class );
                     intent.putExtra("index", i);
                     startActivity( intent );
+
+                    CubeMusicPlayer.currentPlayList = new String( listTitle );
 
                 }
             });

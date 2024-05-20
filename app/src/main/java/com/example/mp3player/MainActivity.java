@@ -7,6 +7,7 @@ import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +48,7 @@ import java.io.File;
 import java.io.LineNumberInputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -202,13 +205,13 @@ public class MainActivity extends AppCompatActivity {
                     songsInPlayLists s = new songsInPlayLists(view.getContext());
                     s.open();
 
-                    ArrayList<String[]> r = s.getSongsInList(title);
+                    ArrayList<musicItem> songs = s.getSongsInList(title);
                     //check if song exists in the playlist
                     String data = new String( m.getData() );
 
-                    for( String[] song : r )
+                    for( musicItem song : songs )
                     {
-                        if( data.equals( song[1] ) )
+                        if( data.equals( song.getData() ) )
                         {
                             Toast.makeText(view.getContext(), "Song Already in " + title, Toast.LENGTH_SHORT).show();
                             s.close();
@@ -216,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    s.addSong( title, m.getName(), m.getData());
+                    s.addSong( title, m.getName(), m.getData(),  m.getDuration(), m.getArtist());
                     s.close();
 
                     return true;
@@ -269,34 +272,35 @@ public class MainActivity extends AppCompatActivity {
     public void initCurrent( Handler handler )
     {
         try {
-            String []last = new String[3];
+            String []last = new String[4];
             LastPlayed p = new LastPlayed( MainActivity.this );
             p.open();
             last = p.getLastPlayed();
             p.close();
 
-            CubeMusicPlayer.queryAudio();
+            songsInPlayLists s = new songsInPlayLists( getApplicationContext() );
+            s.open();
+            if( last[0] == null )
+            {
+                //load all songs
+                CubeMusicPlayer.musicItems = s.getSongsInList("allsongs");
+                s.close();
+            }
+            else
+            {
+                //load from last playlist
+                CubeMusicPlayer.musicItems = s.getSongsInList(last[0]);
+                s.close();
+            }
 
-            title.setText( CubeMusicPlayer.musicItems.get(0).getName() );
+            //CubeMusicPlayer.queryAudio();
+
+            //title.setText( CubeMusicPlayer.musicItems.get(0).getName() );
         }catch ( Exception e )
         {
             Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
         }
     }
-
-    private void startCurrent( int index)
-    {
-        try{
-            //Intent intent = new Intent( MainActivity.this, currentSong.class );
-            //intent.putExtra( "index", index );
-            //startActivity( intent );
-            //CubeMusicPlayer.play( CubeMusicPlayer.paths, CubeMusicPlayer.titles, index, true);
-        }catch( Exception e )
-        {
-            Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     @Override
     public void onResume()
@@ -335,9 +339,10 @@ public class MainActivity extends AppCompatActivity {
     public static void handlePlayAction(Context context)
     {
         try {
+
             if(CubeMusicPlayer.player.isPlaying() )
             {
-                Toast.makeText(context, "is playing", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "is playing", Toast.LENGTH_SHORT).show();
                 if( CubeMusicPlayer.isPaused )
                 {
                     //player.resume();
@@ -368,4 +373,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onDestroy()
+    {
+        //update last played table
+        saveLastPlayedSongDetails( getApplicationContext() );
+
+        super.onDestroy();
+    }
+
+    public static void saveLastPlayedSongDetails( Context context)
+    {
+        LastPlayed p = new LastPlayed( context );
+        p.open();
+        p.addLastPlayed( new String( CubeMusicPlayer.currentPlayList ),
+                new String( CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex ).getName()),
+                new String( CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex).getData()));
+        p.close();
+    }
 }

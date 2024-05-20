@@ -15,6 +15,8 @@ public class songsInPlayLists {
 
     private static final String playList = "playlist";
     private static final String songName = "title";
+    private static final String songArtistName = "artistName";
+    private static final String songDuration = "songDuration";
     private static final String songData = "path";
     private static final String songId = "songID";
     private static final String tableName = "songs";
@@ -39,7 +41,9 @@ public class songsInPlayLists {
                             songId + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT , " +
                             playList + " TEXT NOT NULL , " +
                             songName + " TEXT NOT NULL , " +
-                            songData + " TEXT NOT NULL ) ; ");
+                            songData + " TEXT NOT NULL," +
+                            songDuration + " INTEGER NOT NULL," +
+                            songArtistName + " TEXT " + "  ) ; ");
         }
 
         @Override
@@ -75,13 +79,15 @@ public class songsInPlayLists {
         ourHelper.close();
     }
 
-    public long addSong(String playListName, String songName, String songData)
+    public long addSong(String playListName, String songName, String songData, int duration, String artistName)
     {
 
         ContentValues cv = new ContentValues();
         cv.put(this.playList, playListName);
         cv.put(this.songName, songName);
         cv.put(this.songData, songData);
+        cv.put(this.songDuration, duration);
+        cv.put(this.songArtistName, artistName);
 
         Toast.makeText(thisContext, "Added to " + playListName, Toast.LENGTH_SHORT).show();
         long l = songDb.insert( tableName, null, cv);
@@ -94,23 +100,27 @@ public class songsInPlayLists {
         return l;
     }
 
-    public ArrayList<String[]> getSongsInList(String ListName)
+    public ArrayList<musicItem> getSongsInList(String ListName)
     {
         //String[] cols = { songName, songData };
         //Cursor c = songDb.query( tableName,cols, playList, new String[]{ ListName }, null, null, null);
-        String query = " SELECT " + songName + " , " + songData +
+        String query = " SELECT " + songName + " , " + songData + " , " + songDuration + " , " + songArtistName +
                 " FROM " + tableName + " WHERE " + this.playList + " LIKE '%" + ListName + "%' ; ";
         Cursor c = songDb.rawQuery( query,null);
 
         int songNameIndex = c.getColumnIndex( songName );
         int songDataIndex = c.getColumnIndex(songData);
+        int songDurationIndex = c.getColumnIndex( songDuration );
+        int songArtistIndex = c.getColumnIndex( songArtistName );
 
-        ArrayList<String[]> result = new ArrayList<>(10);
+        ArrayList<musicItem> result = new ArrayList<>(10);
 
         for( c.moveToFirst(); !c.isAfterLast(); c.moveToNext() )
         {
-            result.add( new String[] { new String( c.getString(songNameIndex) ),
-                    new String( c.getString(songDataIndex) ) } );
+            result.add( new musicItem( new String( c.getString(songNameIndex) ),
+                    new String( c.getString(songDataIndex) ),
+                    c.getInt( songDurationIndex ) ,
+                    new String( c.getString( songArtistIndex ) ) ) );
         }
 
         return result;

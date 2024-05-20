@@ -36,8 +36,8 @@ public class LastPlayed
             db.execSQL("CREATE TABLE " + tableName + " ( " +
                     lastSongId + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                     lastPlayList + " TEXT NOT NULL, " +
-                    lastSongTitle + "TEXT NOT NULL, " +
-                    lastSongPath + "TEXT NOT NULL )");
+                    lastSongTitle + " TEXT NOT NULL, " +
+                    lastSongPath + " TEXT NOT NULL )");
         }
 
         @Override
@@ -83,18 +83,18 @@ public class LastPlayed
 
         Cursor c = db.rawQuery( query, null );
 
-        if( c.getCount() < 1)
-        {
-            return new String[]{null, null, null};
-        }
-
         int listIndex = c.getColumnIndex( lastPlayList );
         int titleIndex = c.getColumnIndex( lastSongTitle );
         int pathIndex = c.getColumnIndex( lastSongPath );
 
-        result[0] = c.getString( listIndex );
-        result[1] = c.getString( titleIndex );
-        result[2] = c.getString( pathIndex );
+        if( c.moveToFirst() )
+        {
+            result[0] = c.getString( listIndex );
+            result[1] = c.getString( titleIndex );
+            result[2] = c.getString( pathIndex );
+        }
+
+        c.close();
 
         return result;
     }
