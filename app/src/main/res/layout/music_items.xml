@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@drawable/background_rounded_corners"
-    android:backgroundTint="@color/white"
+    android:backgroundTint="@color/black"
     >
 
     <ImageView
@@ -20,7 +20,7 @@
         android:id="@+id/musicItem"
         android:layout_width="0dp"
         android:layout_weight="5"
-        android:textColor="@color/black"
+        android:textColor="@color/purple2"
         android:textSize="16sp"
         android:layout_height="96dp"
         android:paddingTop="5dp"

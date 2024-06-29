@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TableLayout listTable;
     private static Context context;
-    public static PlayMusicThread player;
+    //public static PlayMusicThread player;
 
     private PlaylistItemsAdapter adapter;
 
@@ -74,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CubeMusicPlayer.thisContext = this;//init the players context
+        //CubeMusicPlayer.thisContext = this;//init the players context
         context = this;
 
-        player = new PlayMusicThread( new Handler( Looper.getMainLooper() ), getApplicationContext(), "allsongs");
+        //player = new PlayMusicThread( new Handler( Looper.getMainLooper() ), getApplicationContext(), "allsongs");
 
         requestFileReadAndWritePermission();
 
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    moreMenus(view, new musicItem(CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex )) );
+                    //moreMenus(view, new musicItem(CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex )) );
                 }catch( Exception e )
                 {
                     Toast.makeText(MainActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void setTitle( String s)
     {
-        title.setText(CubeMusicPlayer.currentSongTitle);
+        //title.setText(CubeMusicPlayer.currentSongTitle);
     }
 
     public void loadAllSongs(View view)
@@ -278,24 +278,11 @@ public class MainActivity extends AppCompatActivity {
             last = p.getLastPlayed();
             p.close();
 
-            songsInPlayLists s = new songsInPlayLists( getApplicationContext() );
-            s.open();
-            if( last[0] == null )
+            if( last[0] == null)
             {
-                //load all songs
-                CubeMusicPlayer.musicItems = s.getSongsInList("allsongs");
-                s.close();
+                title.setText("Unknown");
             }
-            else
-            {
-                //load from last playlist
-                CubeMusicPlayer.musicItems = s.getSongsInList(last[0]);
-                s.close();
-            }
-
-            //CubeMusicPlayer.queryAudio();
-
-            //title.setText( CubeMusicPlayer.musicItems.get(0).getName() );
+            title.setText( last[1] );
         }catch ( Exception e )
         {
             Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
@@ -313,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
     {
         try {
 
-            int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.musicItems.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
-            player.play( true, index );
+            //int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.musicItems.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
+            //player.play( true, index );
 
         }catch ( Exception e )
         {
@@ -326,8 +313,8 @@ public class MainActivity extends AppCompatActivity {
     {
         try {
 
-            int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-            player.play( true, index );
+            //int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+            //player.play( true, index );
 
         }catch( Exception e )
         {
@@ -338,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void handlePlayAction(Context context)
     {
-        try {
+        /*try {
 
             if(CubeMusicPlayer.player.isPlaying() )
             {
@@ -370,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
         catch( Exception e )
         {
             Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
-        }
+        } */
     }
 
     @Override
@@ -384,11 +371,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static void saveLastPlayedSongDetails( Context context)
     {
-        LastPlayed p = new LastPlayed( context );
+        /*LastPlayed p = new LastPlayed( context );
         p.open();
         p.addLastPlayed( new String( CubeMusicPlayer.currentPlayList ),
                 new String( CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex ).getName()),
                 new String( CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex).getData()));
-        p.close();
+        p.close(); */
     }
 }

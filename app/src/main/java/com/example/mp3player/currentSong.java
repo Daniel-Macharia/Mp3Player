@@ -41,19 +41,19 @@ public class currentSong  extends AppCompatActivity {
             Intent intent = getIntent();
             int index = intent.getIntExtra("index", 0);
 
-            final int duration = CubeMusicPlayer.musicItems.get( index ).getDuration();
-            int min = (int)( duration / 6000);
-            int sec = (int)((duration - ( min * 6000) ) / 1000);
-            max.setText(min + ":" + sec);
+            //final int duration = CubeMusicPlayer.musicItems.get( index ).getDuration();
+           // int min = (int)( duration / 6000);
+           // int sec = (int)((duration - ( min * 6000) ) / 1000);
+          //  max.setText(min + ":" + sec);
             songProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     if( fromUser )
                     {
 
-                        int timeToSeek = (int)(progress * duration) / 100;
+                       // int timeToSeek = (int)(progress * duration) / 100;
                         //Toast.makeText(currentSong.this, "duration: " + duration, Toast.LENGTH_SHORT).show();
-                        CubeMusicPlayer.forwardTo( timeToSeek );
+                       // CubeMusicPlayer.forwardTo( timeToSeek );
                     }
                 }
 
@@ -68,45 +68,45 @@ public class currentSong  extends AppCompatActivity {
                 }
             });
 
-            MainActivity.player.play( false, index);
+          //  MainActivity.player.play( false, index);
 
             nxt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if( !CubeMusicPlayer.isPaused )
-                    {
-                        int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-                        MainActivity.player.play( false, i );
-                    }
+               //     if( !CubeMusicPlayer.isPaused )
+               //     {
+             //           int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
+               //         MainActivity.player.play( false, i );
+                //    }
                 }
             });
 
             prev.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if( !CubeMusicPlayer.isPaused )
-                    {
-                        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.musicItems.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
-                        MainActivity.player.play( false, i );
-                    }
+                  //  if( !CubeMusicPlayer.isPaused )
+                 //   {
+                //        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.musicItems.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
+                 //       MainActivity.player.play( false, i );
+                   // }
                 }
             });
 
             playPause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if( CubeMusicPlayer.isPaused )
-                    {
-                        MainActivity.player.resume();
-                        playPause.setImageResource(R.drawable.pause);
-                        MainActivity.playPause.setImageResource(R.drawable.pause);
-                    }
-                    else
-                    {
-                        MainActivity.player.pause();
-                        playPause.setImageResource(R.drawable.play);
-                        MainActivity.playPause.setImageResource(R.drawable.play);
-                    }
+                 //   if( CubeMusicPlayer.isPaused )
+                 //   {
+                 //       MainActivity.player.resume();
+                //        playPause.setImageResource(R.drawable.pause);
+                 //       MainActivity.playPause.setImageResource(R.drawable.pause);
+                //    }
+                   // else
+                   // {
+                   //     MainActivity.player.pause();
+                   //     playPause.setImageResource(R.drawable.play);
+                   //     MainActivity.playPause.setImageResource(R.drawable.play);
+                   // }
                 }
             });
 

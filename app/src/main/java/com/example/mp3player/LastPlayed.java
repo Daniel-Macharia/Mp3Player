@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 public class LastPlayed
 {
@@ -68,6 +69,14 @@ public class LastPlayed
 
     public long addLastPlayed( String lastList, String lastTitle, String lastPath)
     {
+        try
+        {
+            String sql = "DELETE FROM " + tableName;
+            db.execSQL(sql);
+        }catch( Exception e )
+        {
+            Toast.makeText(thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
         ContentValues cv = new ContentValues();
         cv.put(lastPlayList, lastList);
         cv.put(lastSongTitle, lastTitle);

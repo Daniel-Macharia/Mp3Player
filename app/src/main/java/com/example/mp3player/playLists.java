@@ -171,9 +171,9 @@ public class playLists {
         int n = 0;
         try
         {
-            String getQuery = "SELECT " + numberOfSongs + " FROM " + tableName + " WHERE " + listName + " LIKE('%" + name + "%')";
+            String getQuery = "SELECT " + numberOfSongs + " FROM " + tableName + " WHERE (" + listName + "=? )";
 
-            Cursor c = listDb.rawQuery( getQuery, null );
+            Cursor c = listDb.rawQuery( getQuery, new String[]{name} );
 
             int numberIndex = c.getColumnIndex( numberOfSongs );
 
@@ -199,6 +199,29 @@ public class playLists {
             String sql = "DELETE FROM " + tableName + " WHERE " + listID + "=" + id;
 
             listDb.execSQL(sql);
+        }catch( Exception e )
+        {
+            Toast.makeText(thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void setNumberOfSongs( String listName, int total )
+    {
+        try
+        {
+            ContentValues cv = new ContentValues();
+            cv.put(numberOfSongs, total);
+            String where = this.listName + "=?";
+            int rows = listDb.update(tableName, cv, where, new String[]{listName});
+
+            if( rows != 1 )
+            {
+                cv = new ContentValues();
+                cv.put(tableName, listName);
+                cv.put(numberOfSongs, total);
+                listDb.insert(tableName, null, cv);
+                Toast.makeText(thisContext, "Inserted a new playlist: " + listName + "  " + total, Toast.LENGTH_SHORT).show();
+            }
         }catch( Exception e )
         {
             Toast.makeText(thisContext, "Error: " + e, Toast.LENGTH_SHORT).show();

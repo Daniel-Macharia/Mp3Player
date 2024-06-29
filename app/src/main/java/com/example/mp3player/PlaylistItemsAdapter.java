@@ -110,8 +110,14 @@ public class PlaylistItemsAdapter extends BaseAdapter {
                 });
             }else if( currentId == all.getListId() )
             {
+                int number = 0;
+                playLists p = new playLists(getContext());
+                p.open();
+                number = p.getNumberOfSongsInList("allsongs");
+                p.close();
+
                 image.setImageResource( R.drawable.baseline_queue_music_24);
-                num.setText( allSongs.all_songs_in_device + " songs");
+                num.setText( number + " songs");
                 moreView.setVisibility(View.INVISIBLE);
                 currentView.setOnClickListener(new View.OnClickListener() {
                     @Override

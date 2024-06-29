@@ -7,9 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -21,43 +19,89 @@ import androidx.core.app.ActivityCompat;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 public class CubeMusicPlayer {
 
-    public static boolean isPaused = false;
+    private boolean isPaused = false;
 
-    public static MediaPlayer player = new MediaPlayer();
-    public static String currentSongTitle = "";
+    private MediaPlayer player = new MediaPlayer();
+    private String currentSongTitle = "";
 
-    public static int currentSongIndex = 0;
-    public static String currentPlayList = "allsongs";
+    private int currentSongIndex = 0;
+    private String currentPlayList = "allsongs";
     //public static ArrayList<String> paths = new ArrayList<>(10);
     //public static ArrayList<String> titles = new ArrayList<>(10);
 
-    public static musicItemAdapter adapter;
-    public static ArrayList<musicItem> musicItems = new ArrayList<>(10);
-    public static ArrayList<View> playingSong = new ArrayList<>(10);
-    private static ImageView image ;
-    public static Context thisContext;
+    private musicItemAdapter adapter;
+    private ArrayList<musicItem> musicItems = new ArrayList<>(10);
+    private  ArrayList<View> playingSong = new ArrayList<>(10);
+    private ImageView image ;
+    private Context thisContext;
 
-    private static void startPlayerService( Context context, int index )
+    public CubeMusicPlayer( Context context )
     {
-        Intent playerServiceIntent = new Intent( context, PlayerService.class);
-        playerServiceIntent.putExtra("songTitle", musicItems.get(index).getName());
-        playerServiceIntent.putExtra("artistName", musicItems.get(index).getArtist());
+        this.thisContext = context;
 
-        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O )
+        initPathsAndTitles();
+        //queryAudio();
+    }
+
+    public void setPlayList( String listName )
+    {
+        this.currentPlayList = listName;
+        initMusicItems();
+    }
+
+    private String getPlayList(){return this.currentPlayList;}
+
+    public ArrayList<musicItem> getMusicItems(){return this.musicItems;}
+
+    public boolean isPlaying()
+    {
+        if( isPaused )
+            return false;
+
+        return true;
+    }
+
+    public int getIndex(int i)
+    {
+        if( i < 0 )
         {
-            context.startForegroundService(playerServiceIntent);
+            return musicItems.size() - 1;
         }
-        else {
-            context.startService(playerServiceIntent);
+        else if( i == musicItems.size() )
+        {
+            return 0;
+        }
+        else
+        {
+            return i;
         }
     }
 
-    public static void play(Handler handler, ArrayList<musicItem> items, final int index, boolean startedFromHome)
+    public String getSongName( int index )
+    {
+        return this.musicItems.get(index).getName();
+    }
+
+    public String getArtistName( int index )
+    {
+        return this.musicItems.get(index).getArtist();
+    }
+
+    private void startPlayerService( int index )
+    {
+        Intent playerServiceIntent = new Intent( thisContext, PlayerService.class);
+        playerServiceIntent.putExtra("index", index);
+        //set flag to know whether the player is playing or not
+        //to avoid recursive call
+        playerServiceIntent.putExtra("isPlaying", true);
+
+        thisContext.startService(playerServiceIntent);
+    }
+
+    public void play(Handler handler, int index)
     {
         if( player == null )
         {
@@ -73,19 +117,20 @@ public class CubeMusicPlayer {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    startPlayerService(thisContext, index);
+                    startPlayerService(index);
+                    //PlayerService.showNotification(index);
                     MainActivity.playPause.setImageResource(R.drawable.pause);
-                    currentSongTitle = items.get(index).getName();
+                    currentSongTitle = musicItems.get(index).getName();
                     MainActivity.setTitle(currentSongTitle);
                     currentSongIndex = index;
-                    if( startedFromHome )
+                    /*if( startedFromHome )
                         MainActivity.title.setText(items.get( index ).getName());
                     else
-                        currentSong.title.setText(items.get(index).getName());
+                        currentSong.title.setText(items.get(index).getName());*/
                 }
             });
 
-            items.get( index ).setIsPlaying( true );
+            musicItems.get( index ).setIsPlaying( true );
 
             if( adapter != null )
             {
@@ -98,7 +143,7 @@ public class CubeMusicPlayer {
                 });
             }
 
-            String songPath = new String(items.get(index).getData());
+            String songPath = new String(musicItems.get(index).getData());
 
             if( player == null )
             {
@@ -112,16 +157,20 @@ public class CubeMusicPlayer {
             player.setDataSource(songPath);
             player.prepare();
             player.start();
+
+            updateLastPlayed(index);
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     player = null;
                     player = new MediaPlayer();
 
-                    if( startedFromHome )
+                    /*if( startedFromHome )
                         play( handler, items, (index == (items.size() - 1) ) ? 0 : (index + 1), true );
                     else
-                        play( handler, items, (index == (items.size() - 1) ) ? 0 : (index + 1), false );
+                        play( handler, items, (index == (items.size() - 1) ) ? 0 : (index + 1), false ); */
+
+                    play(handler, (index == (musicItems.size() - 1) ) ? 0 : (index + 1));
                 }
             });
 
@@ -147,19 +196,27 @@ public class CubeMusicPlayer {
 
     }
 
-    public static void forwardTo( int time )
+    private void updateLastPlayed(int lastIndex)
+    {
+        LastPlayed p = new LastPlayed(thisContext);
+        p.open();
+        p.addLastPlayed( currentPlayList, musicItems.get(lastIndex).getName(), musicItems.get(lastIndex).getData());
+        p.close();
+    }
+
+    public void forwardTo( int time )
     {
         player.seekTo(time);
     }
 
-    public static void stopCurrentSong()
+    public void stopCurrentSong()
     {
         player.stop();
         player.release();
         player = null;
     }
 
-    public static void pause()
+    public void pause()
     {
         if( !isPaused )
         {
@@ -168,7 +225,7 @@ public class CubeMusicPlayer {
         }
     }
 
-    public static void resume()
+    public void resume()
     {
         if( isPaused )
         {
@@ -177,22 +234,39 @@ public class CubeMusicPlayer {
         }
     }
 
-    public static void initPathsAndTitles()
+    public void removeFromCurrentPlaylist( int index )
     {
-        //paths = null;
-        //titles = null;
-        //paths = new ArrayList<>(10);
-        //titles = new ArrayList<>( 10);
+        musicItems.remove( index );
+    }
+
+    public void initPathsAndTitles()
+    {
         musicItems = null;
         musicItems = new ArrayList<musicItem>(10);
     }
-    public static ArrayList<musicItem> queryAudio()
+
+    public void initMusicItems()
     {
-        allSongs.all_songs_in_device = 0;
-        ArrayList<musicItem> result = new ArrayList<>(10);
+        musicItems = queryAudio(getPlayList());
+    }
+    public ArrayList<musicItem> queryAudio(String playlist)
+    {
         initPathsAndTitles();
+        ArrayList<musicItem> result = new ArrayList<musicItem>(10);
+        if( !playlist.equals("allsongs") )
+        {
+            //load from correct playlist
+            songsInPlayLists s = new songsInPlayLists(thisContext );
+            s.open();
+            result = s.getSongsInList( getPlayList() );
+            s.close();
+
+            Toast.makeText( thisContext, "Fetching from list: " + currentPlayList, Toast.LENGTH_SHORT).show();
+            return result;
+        }
 
         try{
+            int allSongsInDevice = 0;
             String[] projections = new String[]{MediaStore.Audio.Media.TITLE,
                     MediaStore.Audio.Media.DURATION,
                     MediaStore.Audio.Media.DATA,
@@ -226,18 +300,18 @@ public class CubeMusicPlayer {
                     File f = new File( c.getString( dataIndex ));
                     if( f.exists() )
                     {
-                        result.add( new musicItem( new String(c.getString(titleIndex) ),
+                        /*result.add( new musicItem( new String(c.getString(titleIndex) ),
                                 new String(c.getString(dataIndex)),
                                 c.getInt(durationIndex) ,
-                                new String(c.getString(artistIndex)) ) );
+                                new String(c.getString(artistIndex)) ) );*/
 
                         //titles.add( new String(c.getString(titleIndex)));
                         //paths.add( new String(c.getString(dataIndex)) );
 
-                        musicItems.add( new musicItem( c.getString( titleIndex ), c.getString( dataIndex) ,
+                        result.add( new musicItem( c.getString( titleIndex ), c.getString( dataIndex) ,
                                 c.getInt( durationIndex), c.getString(artistIndex) ) );
 
-                        allSongs.all_songs_in_device++;
+                        allSongsInDevice++;
                     }
 
                 }
@@ -256,18 +330,18 @@ public class CubeMusicPlayer {
                     File f = new File( c2.getString( dataIndex2 ));
                     if( f.exists() )
                     {
-                        result.add( new musicItem( new String(c2.getString(titleIndex2) ),
+                        /*result.add( new musicItem( new String(c2.getString(titleIndex2) ),
                                 new String(c2.getString(dataIndex2)),
                                 c2.getInt(durationIndex2),
-                                new String(c2.getString(artistIndex2)) ) );
+                                new String(c2.getString(artistIndex2)) ) );*/
 
                         //titles.add( new String(c2.getString(titleIndex2)));
                        // paths.add( new String(c2.getString(dataIndex2)) );
 
-                        musicItems.add( new musicItem( c2.getString( titleIndex2), c2.getString( dataIndex2 ),
+                        result.add( new musicItem( c2.getString( titleIndex2), c2.getString( dataIndex2 ),
                                 c2.getInt( durationIndex2), c2.getString(artistIndex2) ));
 
-                        allSongs.all_songs_in_device++;
+                        allSongsInDevice++;
                     }
 
                 }
@@ -277,6 +351,11 @@ public class CubeMusicPlayer {
             if( c2 != null )
                 c2.close();
 
+            //update the total number of songs in the allsongs playlist
+            playLists p = new playLists( thisContext );
+            p.open();
+            p.setNumberOfSongs( "allsongs", allSongsInDevice);
+            p.close();
 
         }catch( Exception e )
         {
@@ -289,7 +368,7 @@ public class CubeMusicPlayer {
 
 }
 
-class PlayMusicThread implements Runnable
+/*class PlayMusicThread implements Runnable
 {
     private Thread thread;
     private Handler handler;
@@ -419,4 +498,4 @@ class PlayMusicThread implements Runnable
             toast("Error: " + e);
         }
     }
-}
+}*/

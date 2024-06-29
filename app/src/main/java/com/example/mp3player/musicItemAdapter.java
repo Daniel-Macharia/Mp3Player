@@ -80,7 +80,7 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
 
         title.setText(music.getName());
 
-        CubeMusicPlayer.playingSong.add( currentItemView );
+        //CubeMusicPlayer.playingSong.add( currentItemView );
 
         return currentItemView;
     }
@@ -99,7 +99,7 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
                     if( listName.equals("allsongs") )
                     {
                         //delete from device
-                        deleteSongFromDevice( m );
+                        deleteSongFromDevice( m, position );
                     }
                     else
                     {
@@ -165,6 +165,7 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
             s.close();
 
             musicItems.remove( position );
+            PlayerService.player.removeFromCurrentPlaylist( position );
             notifyDataSetChanged();
         }catch ( Exception e )
         {
@@ -172,7 +173,7 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
         }
     }
 
-    private boolean deleteSongFromDevice( musicItem m )
+    private boolean deleteSongFromDevice( musicItem m, int index )
     {
 
         try
@@ -195,6 +196,13 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
                 Toast.makeText(getContext(), "File deleted!", Toast.LENGTH_SHORT).show();
 
                 musicItems.remove( m );
+
+                playLists p = new playLists(getContext());
+                p.open();
+                p.setNumberOfSongs("allsongs", (p.getNumberOfSongsInList("allsongs") - 1) );
+                p.close();
+                PlayerService.player.removeFromCurrentPlaylist( index );
+
                 notifyDataSetChanged();
             }
             else
@@ -222,11 +230,17 @@ public class musicItemAdapter extends ArrayAdapter<musicItem> {
                     }
 
                     musicItems.remove( m );
+
+                    playLists p = new playLists(getContext());
+                    p.open();
+                    p.setNumberOfSongs("allsongs", (p.getNumberOfSongsInList("allsongs") - 1) );
+                    p.close();
+
+                    PlayerService.player.removeFromCurrentPlaylist( index );
+
                     notifyDataSetChanged();
                 }
             }
-
-            allSongs.all_songs_in_device--;
 
         }catch( Exception e )
         {

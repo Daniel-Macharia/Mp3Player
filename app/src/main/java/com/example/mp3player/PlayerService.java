@@ -51,11 +51,21 @@ import java.util.List;
 
 public class PlayerService extends Service {
     private int id = 444;
+    public static CubeMusicPlayer player;
+    private Handler handler;
 
     @Override
     public void onCreate()
     {
+        //toast("creating service");
+        if( player == null )
+        {
+            player = new CubeMusicPlayer( getApplicationContext() );
+        }
 
+
+        handler = new Handler( Looper.getMainLooper() );
+        //toast("after creating service");
     }
 
     @Override
@@ -76,50 +86,63 @@ public class PlayerService extends Service {
     {
         try
         {
-
+            //toast("service starts executing");
             String action = intent.getStringExtra("com.example.mp3player.action");
+
+            /*String songName = intent.getStringExtra("songTitle");
+            String artistName = intent.getStringExtra("artistName");
+            startForeground(444, getNotification( songName, artistName)); */
+            int index = intent.getIntExtra("index", 0);
+            boolean isPlaying = intent.getBooleanExtra("isPlaying", false);
+
+            startForeground(444, getNotification( index ));
+
+            //if the player is playing, exit. Do not re-start it
+            if( isPlaying )
+            {
+                return Service.START_NOT_STICKY;
+            }
+
 
             if( action == null )//not triggered by notification action
             {
-                String songName = intent.getStringExtra("songTitle");
-                String artistName = intent.getStringExtra("artistName");
-
-                if( songName == null )
-                {
-                    songName = "untitled";
-                }
-
-                if( artistName == null )
-                {
-                    artistName = "unknown";
-                }
-
-                sendNotification(songName, artistName);
-
-                //if( Build.VERSION.SDK_INT < Build.VERSION_CODES.O )
-                {
-                    startForeground(444, getNotification( songName, artistName));
-                }
+                //startForeground(444, getNotification( player.getSongName(index), player.getArtistName(index)));
+                player.play(handler, index);
             }
             else //triggered by notification action
             {
+                //toast("action caught");
+                String songName = intent.getStringExtra("songTitle");
+                String artistName = intent.getStringExtra("artistName");
+
                 if( action.equals("next") )
                 {
-                    MainActivity.handleNextAction( getApplicationContext() );
+                    //MainActivity.handleNextAction( getApplicationContext() );
+
+                    player.play( handler, index);
                 }
 
                 if( action.equals("play") )
                 {
-                    MainActivity.handlePlayAction( getApplicationContext() );
+                    //MainActivity.handlePlayAction( getApplicationContext() );
+
+                    if( player.isPlaying() )
+                    {
+                        player.pause();
+                    }
+                    else{
+                        player.resume();
+                    }
                 }
 
                 if( action.equals("previous") )
                 {
-                    MainActivity.handlePrevAction( getApplicationContext() );
+                    //MainActivity.handlePrevAction( getApplicationContext() );
+                    player.play( handler, index);
                 }
             }
 
-
+            //toast("Exiting start of service");
         }catch (Exception e)
         {
             toast( "Error: " + e );
@@ -135,7 +158,7 @@ public class PlayerService extends Service {
         return super.onUnbind(intent);
     }
 
-    private void sendNotification(String songName, String artistName)
+    private void sendNotification(int index)
     {
         try{
             //toast("sending notification");
@@ -148,10 +171,10 @@ public class PlayerService extends Service {
 
 
             int PREV = 1, PLAY = 2, NEXT = 3, CANCEL = 4, MAIN = 5;
-            Intent prevIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action", "previous");
-            Intent nextIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","next");
-            Intent playIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","play");
-            Intent cancelIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","cancel");
+            Intent prevIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","previous").putExtra("index", player.getIndex(index - 1));
+            Intent nextIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","next").putExtra("index", player.getIndex(index + 1));
+            Intent playIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","play").putExtra("index", index);
+            Intent cancelIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","cancel").putExtra("index", index);
 
             Intent mainActivityIntent = new Intent( getApplicationContext(), MainActivity.class );
 
@@ -184,8 +207,8 @@ public class PlayerService extends Service {
                     .addAction( R.drawable.next, "next", nextPendingIntent )
                     .addAction( R.drawable.cancel, "Cancel", cancelPendingIntent )
                     .setColor(getResources().getColor(R.color.cream, null) )
-                    .setContentTitle( new String( songName ) )
-                    .setContentText( new String( artistName ) )
+                    .setContentTitle( new String( player.getSongName( index ) ) )
+                    .setContentText( new String( player.getArtistName( index ) ) )
                     .setSilent(true)
                     .setContentIntent( mainActivityPendingIntent );
 
@@ -199,7 +222,7 @@ public class PlayerService extends Service {
         }
     }
 
-    private Notification getNotification(String songName, String artistName)
+    private Notification getNotification(int index)
     {
         String channelId = "444";
         String channelName = "cube_music_player";
@@ -212,10 +235,10 @@ public class PlayerService extends Service {
         }
 
         int PREV = 1, PLAY = 2, NEXT = 3, CANCEL = 4, MAIN = 5;
-        Intent prevIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","previous");
-        Intent nextIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","next");
-        Intent playIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","play");
-        Intent cancelIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","cancel");
+        Intent prevIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","previous").putExtra("index", player.getIndex(index - 1));
+        Intent nextIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","next").putExtra("index", player.getIndex(index + 1));
+        Intent playIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","play").putExtra("index", index);
+        Intent cancelIntent = new Intent( getApplicationContext(), PlayerService.class).putExtra("com.example.mp3player.action","cancel").putExtra("index", index);
 
         Intent mainActivityIntent = new Intent( getApplicationContext(), MainActivity.class );
 
@@ -234,8 +257,8 @@ public class PlayerService extends Service {
                 .addAction( R.drawable.next, "next", nextPendingIntent )
                 .addAction( R.drawable.cancel, "Cancel", cancelPendingIntent )
                 .setColor(getResources().getColor(R.color.cream, null) )
-                .setContentTitle( new String( songName ) )
-                .setContentText( new String( artistName ) )
+                .setContentTitle( new String( player.getSongName(index) ) )
+                .setContentText( new String( player.getArtistName(index) ) )
                 .setSilent(true)
                 .setContentIntent( mainActivityPendingIntent ).build();
     }

@@ -40,7 +40,7 @@ public class allSongs extends AppCompatActivity {
 
         list = findViewById(R.id.musicList);
 
-        MainActivity.player.setPlaylist("allsongs");
+        //MainActivity.player.setPlaylist("allsongs");
 
         context = this;
 
@@ -49,7 +49,13 @@ public class allSongs extends AppCompatActivity {
         try{
             ArrayList<musicItem> items = new ArrayList<>(10);
 
-            songs = CubeMusicPlayer.queryAudio();
+            if( PlayerService.player == null )
+            {
+                PlayerService.player = new CubeMusicPlayer(getApplicationContext());
+                PlayerService.player.setPlayList("allsongs");
+            }
+
+            songs = PlayerService.player.queryAudio("allsongs");
 
              for( musicItem song : songs )
             {
@@ -58,17 +64,25 @@ public class allSongs extends AppCompatActivity {
 
             }
 
-            //musicItemAdapter arr = new musicItemAdapter(allSongs.this, items, "allsongs");
-            CubeMusicPlayer.adapter = new musicItemAdapter(allSongs.this, items, "allsongs");
-            list.setAdapter( CubeMusicPlayer.adapter );
+            //Toast.makeText(context, "Setting list adapter", Toast.LENGTH_SHORT).show();
+            musicItemAdapter adapter = new musicItemAdapter(allSongs.this, songs, "allsongs");
+            //adapter = new musicItemAdapter(allSongs.this, items, "allsongs");
+            list.setAdapter( adapter );
+            //Toast.makeText(context, "All songs adapter is set", Toast.LENGTH_SHORT).show();
 
 
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent( allSongs.this, currentSong.class);
+                    /*Intent intent = new Intent( allSongs.this, currentSong.class);
                     intent.putExtra("index", i);
-                    startActivity(intent);
+                    startActivity(intent); */
+                    PlayerService.player.setPlayList("allsongs");
+                    //Toast.makeText(allSongs.this, "Starting service", Toast.LENGTH_SHORT).show();
+                    Intent serviceIntent = new Intent( allSongs.this, PlayerService.class);
+                    serviceIntent.putExtra("index", i);
+                    startService( serviceIntent );
+                 //   Toast.makeText(allSongs.this, "Started service", Toast.LENGTH_SHORT).show();
                     //CubeMusicPlayer.currentPlayList = new String("allsongs");
                 }
             });
@@ -82,7 +96,7 @@ public class allSongs extends AppCompatActivity {
     @Override
     public void onResume()
     {
-        CubeMusicPlayer.adapter.notifyDataSetChanged();
+        //CubeMusicPlayer.adapter.notifyDataSetChanged();
         super.onResume();
     }
 

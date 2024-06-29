@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".allSongs"
     android:orientation="vertical"
-    android:background="@color/cream"
+    android:background="@color/darkGrey"
     >
 
     <TextView
@@ -16,14 +16,14 @@
         android:text="All Songs"
         android:textColor="@color/purple2"
         android:gravity="center"
-        android:background="@color/white"
+        android:background="@color/black"
         />
     <ListView
         android:id="@+id/musicList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="7"
-        android:divider="@color/cream"
+        android:divider="@color/darkGrey"
         android:dividerHeight="2dp"
         android:padding="4dp"
         />

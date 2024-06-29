@@ -4,7 +4,7 @@
     android:layout_height="144dp"
     android:orientation="vertical"
     android:background="@drawable/background_rounded_corners"
-    android:backgroundTint="@color/white"
+    android:backgroundTint="@color/black"
     >
 
     <LinearLayout

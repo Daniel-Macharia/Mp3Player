@@ -33,7 +33,7 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
             String listTitle = intent.getStringExtra("listName");
             title.setText( listTitle );
 
-            MainActivity.player.setPlaylist( listTitle );
+            //MainActivity.player.setPlaylist( listTitle );
 
             songsInPlayLists s = new songsInPlayLists(this);
             s.open();
@@ -52,18 +52,27 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
 
             }
 
-            //musicItemAdapter adapter = new musicItemAdapter(this, m, listTitle);
-            CubeMusicPlayer.adapter = new musicItemAdapter(this, m, listTitle);
-            playlist.setAdapter(CubeMusicPlayer.adapter);
+            musicItemAdapter adapter = new musicItemAdapter(this, m, listTitle);
+            //CubeMusicPlayer.adapter = new musicItemAdapter(this, m, listTitle);
+            playlist.setAdapter(adapter);
 
+            if( PlayerService.player == null )
+            {
+                PlayerService.player = new CubeMusicPlayer(getApplicationContext());
+            }
             playlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent( OtherPlaylistLayoutClass.this, currentSong.class );
+                    /*Intent intent = new Intent( OtherPlaylistLayoutClass.this, currentSong.class );
                     intent.putExtra("index", i);
-                    startActivity( intent );
+                    startActivity( intent ); */
 
-                    CubeMusicPlayer.currentPlayList = new String( listTitle );
+                    PlayerService.player.setPlayList( new String(listTitle) );
+                    Intent serviceIntent = new Intent(OtherPlaylistLayoutClass.this, PlayerService.class);
+                    serviceIntent.putExtra("index", i);
+                    startService(serviceIntent);
+
+                    //CubeMusicPlayer.currentPlayList = new String( listTitle );
 
                 }
             });
@@ -78,7 +87,7 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
     @Override
     public void onResume()
     {
-        CubeMusicPlayer.adapter.notifyDataSetChanged();
+        //CubeMusicPlayer.adapter.notifyDataSetChanged();
         super.onResume();
     }
 }
