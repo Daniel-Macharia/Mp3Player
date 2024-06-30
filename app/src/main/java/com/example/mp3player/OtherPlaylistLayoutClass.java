@@ -63,9 +63,9 @@ public class OtherPlaylistLayoutClass extends AppCompatActivity {
             playlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    /*Intent intent = new Intent( OtherPlaylistLayoutClass.this, currentSong.class );
+                    Intent intent = new Intent( OtherPlaylistLayoutClass.this, currentSong.class );
                     intent.putExtra("index", i);
-                    startActivity( intent ); */
+                    startActivity( intent );
 
                     PlayerService.player.setPlayList( new String(listTitle) );
                     Intent serviceIntent = new Intent(OtherPlaylistLayoutClass.this, PlayerService.class);

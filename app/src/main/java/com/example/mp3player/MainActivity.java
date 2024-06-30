@@ -126,9 +126,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 //handleNextAction( getApplicationContext() );
-                startPlayerService( getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ) + 1 );
-
-                Toast.makeText(MainActivity.this, "playing next song", Toast.LENGTH_SHORT).show();
+                int index = getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ) + 1;
+                startPlayerService( index, "next");
+                title.setText(PlayerService.player.getSongName( index ));
             }
         });
 
@@ -137,9 +137,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 //handlePrevAction( getApplicationContext() );
-                startPlayerService( getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ) - 1 );
-
-                Toast.makeText(MainActivity.this, "playing previous song", Toast.LENGTH_SHORT).show();
+                int index = getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ) - 1;
+                startPlayerService( index, "previous");//setting title requires service to activity communication
+                title.setText(PlayerService.player.getSongName(index));
             }
         });
 
@@ -147,17 +147,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                startPlayerService(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ), "play");
                 //playing or pausing requires activity to service communication
                 if( PlayerService.player.isPlaying() )
                 {
                     //pause the audio
-                    pausePlayer(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ));
+                    //pausePlayer(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ));
                     playPause.setImageResource( R.drawable.play );
                 }
                 else
                 {
                     //play the audio
-                    pausePlayer(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ));
+                    //pausePlayer(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ));
                     playPause.setImageResource( R.drawable.pause );
                 }
             }
@@ -208,14 +209,13 @@ public class MainActivity extends AppCompatActivity {
         startService(playOrPause);
     }
 
-    private void startPlayerService( int index )
+    private void startPlayerService( int index, String action)
     {
         Intent playerServiceIntent = new Intent( MainActivity.this, PlayerService.class);
         playerServiceIntent.putExtra("index", index);
+        playerServiceIntent.putExtra("com.example.mp3player.action", action);
         startService( playerServiceIntent );
 
-        //setting title requires service to activity communication
-        title.setText(getLastSongTitle());
     }
     public static void moreMenus(View view , musicItem m)
     {
@@ -319,17 +319,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static void setTitle( String s)
-    {
-        //title.setText(CubeMusicPlayer.currentSongTitle);
-    }
-
-    public void loadAllSongs(View view)
-    {
-        Intent intent = new Intent(MainActivity.this, allSongs.class);
-        startActivity(intent);
-    }
-
     public void initPlaylist( Handler handler )
     {
         try {
@@ -356,90 +345,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume()
     {
+        initPlaylist(new Handler( Looper.getMainLooper() ) );
         adapter.notifyDataSetChanged();
         super.onResume();
-    }
-
-    public static void handlePrevAction( Context context )
-    {
-        try {
-
-            //int index = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? (CubeMusicPlayer.musicItems.size() - 1) : ( CubeMusicPlayer.currentSongIndex - 1 );
-            //player.play( true, index );
-
-        }catch ( Exception e )
-        {
-            Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public static void handleNextAction( Context context )
-    {
-        try {
-
-            //int index = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-            //player.play( true, index );
-
-        }catch( Exception e )
-        {
-            Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    public static void handlePlayAction(Context context)
-    {
-        /*try {
-
-            if(CubeMusicPlayer.player.isPlaying() )
-            {
-                //Toast.makeText(context, "is playing", Toast.LENGTH_SHORT).show();
-                if( CubeMusicPlayer.isPaused )
-                {
-                    //player.resume();
-                    playPause.setImageResource(R.drawable.pause);
-                }
-                else
-                {
-                    player.pause();
-                    playPause.setImageResource(R.drawable.play);
-                }
-            }
-            else
-            {
-                player.startPlaying(true);
-            }
-
-        }catch( IllegalStateException is)
-        {
-            if( CubeMusicPlayer.isPaused )
-            {
-                player.resume();
-                playPause.setImageResource(R.drawable.pause);
-            }
-        }
-        catch( Exception e )
-        {
-            Toast.makeText( context, "Error: " + e, Toast.LENGTH_SHORT).show();
-        } */
     }
 
     @Override
     public void onDestroy()
     {
-        //update last played table
-        saveLastPlayedSongDetails( getApplicationContext() );
-
         super.onDestroy();
-    }
-
-    public static void saveLastPlayedSongDetails( Context context)
-    {
-        /*LastPlayed p = new LastPlayed( context );
-        p.open();
-        p.addLastPlayed( new String( CubeMusicPlayer.currentPlayList ),
-                new String( CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex ).getName()),
-                new String( CubeMusicPlayer.musicItems.get( CubeMusicPlayer.currentSongIndex).getData()));
-        p.close(); */
     }
 }

@@ -70,7 +70,6 @@ public class PlayerService extends Service {
     public void onDestroy()
     {
         toast("Destroying service");
-        MainActivity.saveLastPlayedSongDetails( getApplicationContext() );
         super.onDestroy();
     }
     @Override
@@ -98,6 +97,7 @@ public class PlayerService extends Service {
 
             if( action == null )//not triggered by notification action
             {
+                toast("not triggered by notification");
                 player.play(handler, index);
             }
             else //triggered by notification action
@@ -233,6 +233,9 @@ public class PlayerService extends Service {
 
         PendingIntent mainActivityPendingIntent = PendingIntent.getActivity( getApplicationContext(), MAIN, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        //update song name on main and current song activities
+        updateSongTitle(player.getSongName(index));
+
         return  new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon( R.drawable.music_item_icon )
@@ -247,6 +250,19 @@ public class PlayerService extends Service {
                 .setContentText( new String( player.getArtistName(index) ) )
                 .setSilent(true)
                 .setContentIntent( mainActivityPendingIntent ).build();
+    }
+
+    private void updateSongTitle(String title)
+    {
+        try
+        {
+            //instruct MainActivity and currentSong activities to update the current song title
+            //MainActivity.updateTitle(title);
+            //currentSong.updateTitle(title);
+        }catch( Exception e )
+        {
+            toast("error: " + e);
+        }
     }
 
     private void toast( String message )

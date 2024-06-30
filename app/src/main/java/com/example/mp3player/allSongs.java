@@ -74,16 +74,16 @@ public class allSongs extends AppCompatActivity {
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    /*Intent intent = new Intent( allSongs.this, currentSong.class);
+                    Intent intent = new Intent( allSongs.this, currentSong.class);
                     intent.putExtra("index", i);
-                    startActivity(intent); */
+                    startActivity(intent);
+
                     PlayerService.player.setPlayList("allsongs");
                     //Toast.makeText(allSongs.this, "Starting service", Toast.LENGTH_SHORT).show();
                     Intent serviceIntent = new Intent( allSongs.this, PlayerService.class);
                     serviceIntent.putExtra("index", i);
                     startService( serviceIntent );
-                 //   Toast.makeText(allSongs.this, "Started service", Toast.LENGTH_SHORT).show();
-                    //CubeMusicPlayer.currentPlayList = new String("allsongs");
+
                 }
             });
         }catch(Exception e)

@@ -116,7 +116,7 @@ public class CubeMusicPlayer {
                     //PlayerService.showNotification(index);
                     MainActivity.playPause.setImageResource(R.drawable.pause);
                     currentSongTitle = musicItems.get(index).getName();
-                    MainActivity.setTitle(currentSongTitle);
+                    //MainActivity.setTitle(currentSongTitle);
                     currentSongIndex = index;
                     /*if( startedFromHome )
                         MainActivity.title.setText(items.get( index ).getName());

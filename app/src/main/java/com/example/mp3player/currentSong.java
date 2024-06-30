@@ -18,10 +18,10 @@ public class currentSong  extends AppCompatActivity {
     public static TextView title;
     private ImageView nxt;
     private ImageView prev;
-    public static ImageView playPause;
+    public ImageView playPause;
     private SeekBar songProgress;
     private TextView max;
-
+    private int index;
     @Override
     protected void onCreate( Bundle savesInstanceState)
     {
@@ -39,12 +39,9 @@ public class currentSong  extends AppCompatActivity {
             max = findViewById( R.id.max );
 
             Intent intent = getIntent();
-            int index = intent.getIntExtra("index", 0);
+            index = intent.getIntExtra("index", 0);
+            title.setText(PlayerService.player.getSongName(index));
 
-            //final int duration = CubeMusicPlayer.musicItems.get( index ).getDuration();
-           // int min = (int)( duration / 6000);
-           // int sec = (int)((duration - ( min * 6000) ) / 1000);
-          //  max.setText(min + ":" + sec);
             songProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -67,46 +64,35 @@ public class currentSong  extends AppCompatActivity {
 
                 }
             });
-
-          //  MainActivity.player.play( false, index);
-
             nxt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-               //     if( !CubeMusicPlayer.isPaused )
-               //     {
-             //           int i = ( CubeMusicPlayer.currentSongIndex + 1 == CubeMusicPlayer.musicItems.size() ) ? 0 : ( CubeMusicPlayer.currentSongIndex + 1 );
-               //         MainActivity.player.play( false, i );
-                //    }
+                    startPlayerService(++index, "next");
+                    title.setText(PlayerService.player.getSongName(index));
                 }
             });
 
             prev.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                  //  if( !CubeMusicPlayer.isPaused )
-                 //   {
-                //        int i = ( CubeMusicPlayer.currentSongIndex - 1 < 0 ) ? ( CubeMusicPlayer.musicItems.size() - 1) : (CubeMusicPlayer.currentSongIndex - 1);
-                 //       MainActivity.player.play( false, i );
-                   // }
+                    startPlayerService( --index, "previous" );
+                    title.setText(PlayerService.player.getSongName(index ));
                 }
             });
 
             playPause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                 //   if( CubeMusicPlayer.isPaused )
-                 //   {
-                 //       MainActivity.player.resume();
-                //        playPause.setImageResource(R.drawable.pause);
-                 //       MainActivity.playPause.setImageResource(R.drawable.pause);
-                //    }
-                   // else
-                   // {
-                   //     MainActivity.player.pause();
-                   //     playPause.setImageResource(R.drawable.play);
-                   //     MainActivity.playPause.setImageResource(R.drawable.play);
-                   // }
+                    startPlayerService(index, "play");
+
+                    if( PlayerService.player.isPlaying() )
+                    {
+                        playPause.setImageResource( R.drawable.play );
+                    }
+                    else
+                    {
+                        playPause.setImageResource(R.drawable.pause);
+                    }
                 }
             });
 
@@ -115,6 +101,22 @@ public class currentSong  extends AppCompatActivity {
             Toast.makeText(this, e.toString() , Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    private void startPlayerService( int index, String action )
+    {
+        Intent playerServiceIntent = new Intent( currentSong.this, PlayerService.class );
+        playerServiceIntent.putExtra("index", index);
+        playerServiceIntent.putExtra("com.example.mp3player.action", action);
+        startService(playerServiceIntent);
+    }
+
+    private void playOrPausePlayer( int index )
+    {
+        Intent playerServiceIntent = new Intent( currentSong.this, PlayerService.class );
+        playerServiceIntent.putExtra("index", index);
+        playerServiceIntent.setAction("play");
+        startService(playerServiceIntent);
     }
 
 }
