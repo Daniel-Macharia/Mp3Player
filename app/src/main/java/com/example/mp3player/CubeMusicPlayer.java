@@ -58,10 +58,12 @@ public class CubeMusicPlayer {
 
     public boolean isPlaying()
     {
-        if( isPaused )
-            return false;
+        return !isPaused;
+    }
 
-        return true;
+    public void setIsPaused(boolean isPaused)
+    {
+        this.isPaused = isPaused;
     }
 
     public int getIndex(int i)
@@ -103,16 +105,9 @@ public class CubeMusicPlayer {
 
     public void play(Handler handler, int index)
     {
-        if( player == null )
-        {
-            player = new MediaPlayer();
-        }
-        else if( player.isPlaying() )
-        {
-            stopCurrentSong();
-        }
 
         try{
+            stopCurrentSong();
 
             handler.post(new Runnable() {
                 @Override
@@ -148,11 +143,6 @@ public class CubeMusicPlayer {
             if( player == null )
             {
                 player = new MediaPlayer();
-            }
-            else
-            {
-                if(isPaused)
-                    resume();
             }
             player.setDataSource(songPath);
             player.prepare();

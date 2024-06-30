@@ -52,7 +52,7 @@ public class allSongs extends AppCompatActivity {
             if( PlayerService.player == null )
             {
                 PlayerService.player = new CubeMusicPlayer(getApplicationContext());
-                PlayerService.player.setPlayList("allsongs");
+               // PlayerService.player.setPlayList("allsongs");
             }
 
             songs = PlayerService.player.queryAudio("allsongs");

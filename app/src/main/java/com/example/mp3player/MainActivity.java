@@ -5,6 +5,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.core.app.ActivityCompat;
+import androidx.media3.common.Player;
 
 import android.Manifest;
 import android.app.PendingIntent;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView prev;
     private ImageView more;
     public static ImageView playPause;
-    static TextView title;
+    private TextView title;
 
     private TextView name;
     private ImageView img;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private GridView playlistGrid;
 
     private TableLayout listTable;
-    private static Context context;
+    private Context context;
     //public static PlayMusicThread player;
 
     private PlaylistItemsAdapter adapter;
@@ -74,27 +75,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //CubeMusicPlayer.thisContext = this;//init the players context
         context = this;
-
-        //player = new PlayMusicThread( new Handler( Looper.getMainLooper() ), getApplicationContext(), "allsongs");
 
         requestFileReadAndWritePermission();
 
         Handler handler = new Handler(Looper.getMainLooper() );
 
-        //listTable = findViewById( R.id.list_table );
-
         playlistGrid = findViewById( R.id.playlists_list );
-        //playlists.setChoiceMode( ListView.CHOICE_MODE_MULTIPLE );
-
         nxt = findViewById(R.id.next);
         prev = findViewById(R.id.previous);
         playPause = findViewById(R.id.playOrPause);
         title = findViewById(R.id.musicItem);
         more = findViewById(R.id.more);
 
-        initCurrent(handler);
+        initPlaylist(handler);
 
         try{
             ArrayList<playlistItems> lists = new ArrayList<>(10);
@@ -131,7 +125,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                handleNextAction( getApplicationContext() );
+                //handleNextAction( getApplicationContext() );
+                startPlayerService( getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ) + 1 );
+
+                Toast.makeText(MainActivity.this, "playing next song", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -139,7 +136,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                handlePrevAction( getApplicationContext() );
+                //handlePrevAction( getApplicationContext() );
+                startPlayerService( getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ) - 1 );
+
+                Toast.makeText(MainActivity.this, "playing previous song", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -147,9 +147,75 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                handlePlayAction( getApplicationContext() );
+                //playing or pausing requires activity to service communication
+                if( PlayerService.player.isPlaying() )
+                {
+                    //pause the audio
+                    pausePlayer(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ));
+                    playPause.setImageResource( R.drawable.play );
+                }
+                else
+                {
+                    //play the audio
+                    pausePlayer(getSongDataIndex( PlayerService.player.getMusicItems(), getLastSongData() ));
+                    playPause.setImageResource( R.drawable.pause );
+                }
             }
         });
+    }
+
+    private String getLastSongData()
+    {
+        return new String(getLastSongInfo()[2]);
+    }
+
+    private String getLastSongTitle()
+    {
+        return new String(getLastSongInfo()[1]);
+    }
+
+    private String[] getLastSongInfo()
+    {
+        String[] last;
+
+        LastPlayed l = new LastPlayed(getApplicationContext());
+        l.open();
+        last = l.getLastPlayed();
+        l.close();
+
+        return last;
+    }
+
+    private int getSongDataIndex(ArrayList<musicItem> items, String songData )
+    {
+        int index = 0;
+        for( musicItem item : items )
+        {
+            if( item.getData().equals(songData) )
+            {
+                break;
+            }
+            index++;
+        }
+        return index;
+    }
+
+    private void pausePlayer(int index )
+    {
+        Intent playOrPause = new Intent(MainActivity.this, PlayerService.class );
+        playOrPause.putExtra("index", index);
+        playOrPause.setAction("play");
+        startService(playOrPause);
+    }
+
+    private void startPlayerService( int index )
+    {
+        Intent playerServiceIntent = new Intent( MainActivity.this, PlayerService.class);
+        playerServiceIntent.putExtra("index", index);
+        startService( playerServiceIntent );
+
+        //setting title requires service to activity communication
+        title.setText(getLastSongTitle());
     }
     public static void moreMenus(View view , musicItem m)
     {
@@ -264,25 +330,23 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public static Context getContext()
-    {
-        return context;
-    }
-
-    public void initCurrent( Handler handler )
+    public void initPlaylist( Handler handler )
     {
         try {
-            String []last = new String[4];
-            LastPlayed p = new LastPlayed( MainActivity.this );
-            p.open();
-            last = p.getLastPlayed();
-            p.close();
+            String[] last = getLastSongInfo();
 
             if( last[0] == null)
             {
                 title.setText("Unknown");
             }
             title.setText( last[1] );
+
+            //init the player list to the last played playlist
+            if( PlayerService.player == null )
+            {
+                PlayerService.player = new CubeMusicPlayer(getApplicationContext());
+                PlayerService.player.setPlayList(last[0]);
+            }
         }catch ( Exception e )
         {
             Toast.makeText(getApplicationContext(), "Error: " + e, Toast.LENGTH_SHORT).show();

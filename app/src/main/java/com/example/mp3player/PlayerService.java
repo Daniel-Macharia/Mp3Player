@@ -57,7 +57,6 @@ public class PlayerService extends Service {
     @Override
     public void onCreate()
     {
-        //toast("creating service");
         if( player == null )
         {
             player = new CubeMusicPlayer( getApplicationContext() );
@@ -65,7 +64,6 @@ public class PlayerService extends Service {
 
 
         handler = new Handler( Looper.getMainLooper() );
-        //toast("after creating service");
     }
 
     @Override
@@ -86,63 +84,48 @@ public class PlayerService extends Service {
     {
         try
         {
-            //toast("service starts executing");
             String action = intent.getStringExtra("com.example.mp3player.action");
-
-            /*String songName = intent.getStringExtra("songTitle");
-            String artistName = intent.getStringExtra("artistName");
-            startForeground(444, getNotification( songName, artistName)); */
             int index = intent.getIntExtra("index", 0);
             boolean isPlaying = intent.getBooleanExtra("isPlaying", false);
-
-            startForeground(444, getNotification( index ));
 
             //if the player is playing, exit. Do not re-start it
             if( isPlaying )
             {
+                startForeground(444, getNotification( index, true));
                 return Service.START_NOT_STICKY;
             }
 
 
             if( action == null )//not triggered by notification action
             {
-                //startForeground(444, getNotification( player.getSongName(index), player.getArtistName(index)));
                 player.play(handler, index);
             }
             else //triggered by notification action
             {
-                //toast("action caught");
-                String songName = intent.getStringExtra("songTitle");
-                String artistName = intent.getStringExtra("artistName");
-
                 if( action.equals("next") )
                 {
-                    //MainActivity.handleNextAction( getApplicationContext() );
-
                     player.play( handler, index);
                 }
 
                 if( action.equals("play") )
                 {
-                    //MainActivity.handlePlayAction( getApplicationContext() );
-
                     if( player.isPlaying() )
                     {
                         player.pause();
+                        startForeground(444, getNotification( index, player.isPlaying() ));
                     }
                     else{
                         player.resume();
+                        startForeground(444, getNotification( index, player.isPlaying() ));
                     }
                 }
 
                 if( action.equals("previous") )
                 {
-                    //MainActivity.handlePrevAction( getApplicationContext() );
                     player.play( handler, index);
                 }
             }
 
-            //toast("Exiting start of service");
         }catch (Exception e)
         {
             toast( "Error: " + e );
@@ -222,8 +205,9 @@ public class PlayerService extends Service {
         }
     }
 
-    private Notification getNotification(int index)
+    private Notification getNotification(int index, boolean isPlaying)
     {
+        player.setIsPaused(!isPlaying);
         String channelId = "444";
         String channelName = "cube_music_player";
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE );
@@ -253,7 +237,9 @@ public class PlayerService extends Service {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon( R.drawable.music_item_icon )
                 .addAction( R.drawable.prev, "previous", prevPendingIntent )
-                .addAction( R.drawable.play, "pause", playPendingIntent )
+                .addAction(
+                        ((!isPlaying) ? new NotificationCompat.Action(R.drawable.play, "play", playPendingIntent)
+                                 : new NotificationCompat.Action(R.drawable.pause, "pause", playPendingIntent) ) )
                 .addAction( R.drawable.next, "next", nextPendingIntent )
                 .addAction( R.drawable.cancel, "Cancel", cancelPendingIntent )
                 .setColor(getResources().getColor(R.color.cream, null) )
