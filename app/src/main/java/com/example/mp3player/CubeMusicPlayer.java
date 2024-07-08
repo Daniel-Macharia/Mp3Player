@@ -81,6 +81,10 @@ public class CubeMusicPlayer {
             return i;
         }
     }
+    public int getDuration( int index )
+    {
+        return this.musicItems.get( index ).getDuration();
+    }
 
     public String getSongName( int index )
     {

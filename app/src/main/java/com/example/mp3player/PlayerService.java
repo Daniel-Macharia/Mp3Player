@@ -78,11 +78,20 @@ public class PlayerService extends Service {
         return null;
     }
 
+    private void checkPlayer()
+    {
+        if( player == null )
+        {
+            player = new CubeMusicPlayer( getApplicationContext() );
+        }
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         try
         {
+            checkPlayer();
             String action = intent.getStringExtra("com.example.mp3player.action");
             int index = intent.getIntExtra("index", 0);
             boolean isPlaying = intent.getBooleanExtra("isPlaying", false);

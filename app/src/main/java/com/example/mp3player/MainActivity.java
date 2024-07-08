@@ -39,6 +39,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.SeekBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     //public static PlayMusicThread player;
 
     private PlaylistItemsAdapter adapter;
+    private SeekBar seekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +89,25 @@ public class MainActivity extends AppCompatActivity {
         playPause = findViewById(R.id.playOrPause);
         title = findViewById(R.id.musicItem);
         more = findViewById(R.id.more);
+
+        seekBar = findViewById( R.id.songProgress );
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                Toast.makeText(MainActivity.this, "Progress: " + i, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         initPlaylist(handler);
 
