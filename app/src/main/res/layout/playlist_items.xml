@@ -32,7 +32,7 @@
                 android:layout_weight="1"
                 android:text="playlist"
                 android:gravity="center"
-                android:textColor="@color/blue"
+                android:textColor="@color/white"
                 />
 
         </LinearLayout>
@@ -60,7 +60,7 @@
                 android:layout_weight="1"
                 android:text="playlist"
                 android:gravity="center"
-                android:textColor="@color/blue"
+                android:textColor="@color/white"
                 />
 
         </LinearLayout>

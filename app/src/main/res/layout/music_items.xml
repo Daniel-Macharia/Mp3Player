@@ -20,7 +20,7 @@
         android:id="@+id/musicItem"
         android:layout_width="0dp"
         android:layout_weight="5"
-        android:textColor="@color/purple2"
+        android:textColor="@color/white"
         android:textSize="16sp"
         android:layout_height="96dp"
         android:paddingTop="5dp"

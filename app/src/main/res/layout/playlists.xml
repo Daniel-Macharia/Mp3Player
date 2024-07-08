@@ -47,7 +47,7 @@
             android:text="playlist"
             android:textSize="24sp"
             android:gravity="center"
-            android:textColor="@color/purple2"
+            android:textColor="@color/white"
             />
 
         <TextView
@@ -57,7 +57,7 @@
             android:layout_weight="1"
             android:text="number"
             android:gravity="center"
-            android:textColor="@color/purple2"
+            android:textColor="@color/white"
             />
 
     </LinearLayout>
